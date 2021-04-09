@@ -10,7 +10,7 @@ WORKDIR /build
 COPY --from=base /base ./
 RUN yarn run build
 
-FROM node:current-alpine AS production
+FROM node:lts-alpine AS production
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /build/package*.json ./
