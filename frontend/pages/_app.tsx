@@ -8,7 +8,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import { enableStaticRendering } from 'mobx-react-lite';
 import '../services/firebase/client';
-//import '../services/firebase/admin';
 import Head from 'next/head';
 import { AuthProvider } from 'hooks/auth';
 

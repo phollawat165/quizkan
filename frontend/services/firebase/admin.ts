@@ -2,7 +2,7 @@ import * as firebaseAdmin from "firebase-admin";
 
 // Initialize firebase admin sdk for SSR authentication
 if (!firebaseAdmin.apps.length && typeof window === 'undefined') {
-    const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+    const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n');
     const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
     const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
 

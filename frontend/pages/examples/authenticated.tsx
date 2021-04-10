@@ -1,13 +1,14 @@
 import React from 'react';
 import nookies from 'nookies';
 import { useRouter } from 'next/router';
-import { firebaseAdmin } from 'services/firebase/admin';
 import { firebase as firebaseClient } from 'services/firebase/client';
 
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from 'next';
 import { useAuth } from 'hooks/auth';
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+    // ***ONLY USE DYNAMIC IMPORT OR IT WON'T BUILD THE PRODUCTION IMAGE
+    const { firebaseAdmin } = await import('services/firebase/admin');
     try {
         const cookies = nookies.get(ctx);
         const token = await firebaseAdmin.auth().verifyIdToken(cookies.token);
