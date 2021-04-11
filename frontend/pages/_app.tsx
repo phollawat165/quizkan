@@ -7,9 +7,10 @@ import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import { enableStaticRendering } from 'mobx-react-lite';
-import '../services/firebase/client';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import { AuthProvider } from 'hooks/auth';
+import { useEffectOnce } from 'react-use';
 
 // Mobx SSR
 enableStaticRendering(typeof window === 'undefined');
@@ -33,6 +34,10 @@ const swrConfig: SWRConfiguration = {
 
 // Export App Component
 function MyApp({ Component, pageProps }) {
+    // Initialize Firebase
+    useEffectOnce(() => {
+        import('../services/firebase/client');
+    });
     return (
         <SWRConfig value={swrConfig}>
             <AuthProvider>
@@ -40,7 +45,7 @@ function MyApp({ Component, pageProps }) {
                     <meta charSet="utf-8" />
                     <meta
                         name="viewport"
-                        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+                        content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
                     />
                     <link rel="manifest" href="/manifest.json" />
                 </Head>

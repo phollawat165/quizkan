@@ -30,6 +30,14 @@ The default environment variables and the example can be seen in .env file. It c
 5. Run `yarn dev` and open http://localhost:3000 to start playing with Firebase Authentication
 6. (Optional) Open http://localhost:4000 to view the emulator web ui.
 
+## PWA Setup
+
+TODO
+
+### Note
+
+To generate a new service worker in development environment, you have to comment out pwa.disable in next.config.js then start the development server and close it.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
