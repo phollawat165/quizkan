@@ -16,6 +16,7 @@ WORKDIR /app
 COPY --from=build /build/package*.json ./
 COPY --from=build /build/.next ./.next
 COPY --from=build /build/public ./public
+COPY --from=build /build/.env ./
 RUN yarn add next && yarn cache clean
 
 EXPOSE 3000
