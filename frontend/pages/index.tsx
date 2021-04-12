@@ -1,5 +1,6 @@
 import React from 'react';
 import { Col, Row ,Container} from 'react-bootstrap';
+import { useAuth } from 'hooks/auth';
 import Head from 'next/head';
 import styles from '../styles/Home.module.scss';
 import DefaultLayout from '../layouts/Default';
@@ -41,6 +42,7 @@ rows.push(
 
 
 export default function Home() {
+    const { user } = useAuth();
     return (
         <DefaultLayout>
             <Container className="mt-4">
