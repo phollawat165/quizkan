@@ -4,6 +4,7 @@ import { FirebaseAdminModule } from '@aginix/nestjs-firebase-admin';
 import * as admin from 'firebase-admin';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import { AppService } from './app.service';
                 )}.firebaseio.com`,
             }),
         }),
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
