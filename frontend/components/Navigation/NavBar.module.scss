@@ -1,0 +1,18 @@
+.navbar {
+  justify-content: initial;
+}
+
+.navbar-brand {
+  margin-left: 1rem;
+}
+
+.navbar-brand-mobile {
+  margin-left: 1rem;
+}
+
+.user-menu {
+  & > div {
+    right: 0;
+    left: auto;
+  }
+}

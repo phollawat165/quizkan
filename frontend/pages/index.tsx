@@ -1,76 +1,52 @@
+import React from 'react';
+import { Col, Row ,Container} from 'react-bootstrap';
 import Head from 'next/head';
 import styles from '../styles/Home.module.scss';
+import DefaultLayout from '../layouts/Default';
+import CardHome from '../components/Home/CardHome';
+
+const cardTagLogin = [
+    { tag: 'Join Game', value: 0, link: 'create' },
+    { tag: 'Create Game', value: 1, link: 'create' },
+    { tag: 'Host Game', value: 2, link: 'host' },
+    { tag: 'Acheivement', value: 3, link: '' },
+];
+const cardTagNotLogin = [
+    { tag: 'Join Game', link: '' },
+    { tag: 'Login', link: '' },
+    { tag: 'Registration', link: '' },
+];
+const rows = [];
+
+rows.push(
+    <Row >
+          <Col md={6}>
+            <CardHome key={0} {...cardTagLogin[0]} />
+          </Col>
+          <Col md={6}>
+            <CardHome key={1} {...cardTagLogin[1]} />
+          </Col>
+    </Row>
+);
+rows.push(
+    <Row>
+          <Col md={6}>
+            <CardHome key={2} {...cardTagLogin[2]} />
+          </Col>
+          <Col md={6}>
+            <CardHome key={3} {...cardTagLogin[3]} />
+          </Col>
+    </Row>
+);
+
 
 export default function Home() {
     return (
-        <div className={styles.container}>
-            <Head>
-                <title>Create Next App</title>
-                <link rel="icon" href="/favicon.ico" />
-            </Head>
-
-            <main className={styles.main}>
-                <h1 className={styles.title}>
-                    Welcome to <a href="https://nextjs.org">Next.js!</a>
-                </h1>
-
-                <p className={styles.description}>
-                    Get started by editing{' '}
-                    <code className={styles.code}>pages/index.js</code>
-                </p>
-
-                <div className={styles.grid}>
-                    <a href="https://nextjs.org/docs" className={styles.card}>
-                        <h3>Documentation &rarr;</h3>
-                        <p>
-                            Find in-depth information about Next.js features and
-                            API.
-                        </p>
-                    </a>
-
-                    <a href="https://nextjs.org/learn" className={styles.card}>
-                        <h3>Learn &rarr;</h3>
-                        <p>
-                            Learn about Next.js in an interactive course with
-                            quizzes!
-                        </p>
-                    </a>
-
-                    <a
-                        href="https://github.com/vercel/next.js/tree/master/examples"
-                        className={styles.card}>
-                        <h3>Examples &rarr;</h3>
-                        <p>
-                            Discover and deploy boilerplate example Next.js
-                            projects.
-                        </p>
-                    </a>
-
-                    <a
-                        href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        className={styles.card}>
-                        <h3>Deploy &rarr;</h3>
-                        <p>
-                            Instantly deploy your Next.js site to a public URL
-                            with Vercel.
-                        </p>
-                    </a>
-                </div>
-            </main>
-
-            <footer className={styles.footer}>
-                <a
-                    href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer">
-                    Powered by{' '}
-                    <img
-                        src="/vercel.svg"
-                        alt="Vercel Logo"
-                        className={styles.logo}
-                    />
-                </a>
-            </footer>
-        </div>
+        <DefaultLayout>
+            <Container className="mt-4">
+                {rows}
+            </Container>
+            
+        </DefaultLayout>
     );
 }
