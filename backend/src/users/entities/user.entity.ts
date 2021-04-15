@@ -1,1 +1,20 @@
-export class User {}
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import { defaultSchemaOptions } from 'src/constants';
+import { Device, DeviceSchema } from './device.entity';
+
+export type UserDocument = User & Document;
+
+@Schema({ ...defaultSchemaOptions, timestamps: true })
+export class User {
+    @Prop({ required: true, unique: true, index: true })
+    uid: string;
+
+    @Prop({ default: [] })
+    roles: string[];
+
+    @Prop([DeviceSchema])
+    devices: Device[];
+}
+
+export const UserSchema = SchemaFactory.createForClass(User);

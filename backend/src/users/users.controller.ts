@@ -6,12 +6,16 @@ import {
     Patch,
     Param,
     Delete,
+    UseGuards,
+    NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { TokenAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('users')
+@UseGuards(TokenAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
@@ -27,7 +31,9 @@ export class UsersController {
 
     @Get(':id')
     async findOne(@Param('id') id: string) {
-        return this.usersService.findOne(id);
+        const user = await this.usersService.findOne(id);
+        if (!user) throw new NotFoundException();
+        return user;
     }
 
     @Patch(':id')
@@ -35,11 +41,16 @@ export class UsersController {
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
     ) {
-        return this.usersService.update(id, updateUserDto);
+        const user = await this.usersService.update(id, updateUserDto);
+        if (!user) throw new NotFoundException();
+        return user;
     }
 
     @Delete(':id')
     async remove(@Param('id') id: string) {
-        return this.usersService.remove(id);
+        const user = await this.usersService.findOne(id);
+        if (!user) throw new NotFoundException();
+        await this.usersService.remove(id);
+        return;
     }
 }

@@ -1,50 +1,38 @@
 import { FirebaseAuthenticationService } from '@aginix/nestjs-firebase-admin';
-import {
-    Injectable,
-    MethodNotAllowedException,
-    NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User, UserDocument } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-    constructor(private firebase: FirebaseAuthenticationService) {}
+    constructor(
+        private firebase: FirebaseAuthenticationService,
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
+    ) {}
+
     async create(createUserDto: CreateUserDto) {
-        throw new MethodNotAllowedException();
+        const user = await this.userModel.create(createUserDto);
+        return user;
     }
 
     async findAll() {
-        return (await this.firebase.listUsers()).users;
+        return this.userModel.find().exec();
     }
 
-    async findOne(id: string) {
-        try {
-            return await this.firebase.getUser(id);
-        } catch (err) {
-            this.handleAuthException(err);
-        }
+    async findOne(uid: string) {
+        return this.userModel.findOne({ uid: uid }).exec();
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto) {
-        try {
-            return await this.firebase.updateUser(id, updateUserDto);
-        } catch (err) {
-            this.handleAuthException(err);
-        }
+    async update(uid: string, updateUserDto: UpdateUserDto) {
+        return this.userModel
+            .findOneAndUpdate({ uid: uid }, updateUserDto)
+            .exec();
     }
 
-    async remove(id: string) {
-        try {
-            return await this.firebase.deleteUser(id);
-        } catch (err) {
-            this.handleAuthException(err);
-        }
-    }
-
-    private handleAuthException(err) {
-        if (err.code == 'auth/user-not-found')
-            throw new NotFoundException(err.message);
-        else throw err;
+    async remove(uid: string) {
+        return this.userModel.deleteOne({ uid: uid }).exec();
     }
 }

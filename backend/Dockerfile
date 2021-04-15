@@ -10,7 +10,6 @@ ENV PORT=8000
 WORKDIR /app
 COPY --from=build /build/package*.json ./
 COPY --from=build /build/dist ./dist
-COPY --from=build /build/.env* ./
 RUN yarn install --production && yarn cache clean
 
 EXPOSE ${PORT}
