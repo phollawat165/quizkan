@@ -35,4 +35,8 @@ export class UsersService {
     async remove(uid: string) {
         return this.userModel.deleteOne({ uid: uid }).exec();
     }
+
+    getModel(): Model<UserDocument> {
+        return this.userModel;
+    }
 }

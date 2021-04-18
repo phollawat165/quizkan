@@ -1,5 +1,6 @@
 import { FirebaseAuthenticationService } from '@aginix/nestjs-firebase-admin';
 import { Injectable } from '@nestjs/common';
+import { UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class AuthService {
      * @param token Firebase id token from the client SDK
      * @returns User if the token is valid, null otherwise
      */
-    async validateUser(token: string): Promise<any | null> {
+    async validateUser(token: string): Promise<UserDocument | null> {
         try {
             const userRecord = await this.firebaseAuthService.verifyIdToken(
                 token,

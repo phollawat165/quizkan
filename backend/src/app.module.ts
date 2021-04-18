@@ -57,6 +57,7 @@ import mongoose from 'mongoose';
                 mongoose.plugin(require('mongoose-lean-virtuals'));
                 mongoose.plugin(require('mongoose-hidden')());
                 mongoose.set('returnOriginal', false);
+                //mongoose.set('debug', true);
                 return {
                     uri: config.get<string>(
                         'MONGODB_URI',
@@ -67,6 +68,7 @@ import mongoose from 'mongoose';
                     useCreateIndex: true,
                     useFindAndModify: false,
                     poolSize: 10,
+                    autoIndex: true,
                 };
             },
         }),
