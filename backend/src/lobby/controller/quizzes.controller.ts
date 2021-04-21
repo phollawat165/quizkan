@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common';
 import { TokenAuthGuard } from 'src/auth/auth.guard';
 import { UserDocument } from 'src/users/entities/user.entity';
-import { CreateQuizDto } from './dto/create-quiz.dto';
-import { UpdateQuizDto } from './dto/uptate-quiz.dto';
-import { QuizzesService } from './quizzes.service';
+import { CreateQuizDto } from '../../game/dto/create-quiz.dto';
+import { UpdateQuizDto } from '../../game/dto/uptate-quiz.dto';
+import { QuizzesService } from '../../game/quizzes.service';
 
 @Controller('/quizzes')
 @UseGuards(TokenAuthGuard)

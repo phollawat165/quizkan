@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Role } from 'src/auth/role/role.enum';
-import { defaultSchemaOptions } from 'src/constants';
+import { defaultSchemaOptions } from 'src/util/constants';
 import { Device, DeviceSchema } from './device.entity';
 
 export type UserDocument = User & Document;

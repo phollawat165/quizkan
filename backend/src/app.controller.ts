@@ -28,26 +28,26 @@ export class AppController {
         return this.appService.getHello();
     }
 
-    @Post('/files')
-    @UseInterceptors(FileInterceptor('file'))
-    async postFile(@UploadedFile() file: Express.Multer.File): Promise<any> {
-        if (!file) throw new BadRequestException();
-        const path = `./uploads/${dayjs().format('YYYYMMDDHHmmssZZ')}_${
-            file.originalname
-        }`;
-        await fs.copyFile(file.path, path);
-        await fs.unlink(file.path);
-        return { url: path };
-    }
+    // @Post('/files')
+    // @UseInterceptors(FileInterceptor('file'))
+    // async postFile(@UploadedFile() file: Express.Multer.File): Promise<any> {
+    //     if (!file) throw new BadRequestException();
+    //     const path = `./uploads/${dayjs().format('YYYYMMDDHHmmssZZ')}_${
+    //         file.originalname
+    //     }`;
+    //     await fs.copyFile(file.path, path);
+    //     await fs.unlink(file.path);
+    //     return { url: path };
+    // }
 
-    @Get('/uploads/:name')
-    @UseGuards(TokenAuthGuard)
-    async getFile(
-        @Param('name', new DefaultValuePipe(null)) name: string,
-        @Res() res: Response,
-    ) {
-        const path = `./uploads/${name}`;
-        if (name === null || !fs.access(path)) throw new NotFoundException();
-        fsSync.createReadStream(path).pipe(res);
-    }
+    // @Get('/uploads/:name')
+    // @UseGuards(TokenAuthGuard)
+    // async getFile(
+    //     @Param('name', new DefaultValuePipe(null)) name: string,
+    //     @Res() res: Response,
+    // ) {
+    //     const path = `./uploads/${name}`;
+    //     if (name === null || !fs.access(path)) throw new NotFoundException();
+    //     fsSync.createReadStream(path).pipe(res);
+    // }
 }

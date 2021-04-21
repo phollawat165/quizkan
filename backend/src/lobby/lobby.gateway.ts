@@ -12,15 +12,15 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import dayjs from 'dayjs';
 import { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { AllExceptionsFilter } from './exception.filter';
+import { AllExceptionsFilter } from '../game/exception.filter';
 
 @WebSocketGateway({
     cors: { origin: '*', methods: ['GET', 'POST'], credentials: true },
 })
 @UseFilters(AllExceptionsFilter)
-export class GameGateway
+export class LobbyGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-    private logger: Logger = new Logger(GameGateway.name);
+    private logger: Logger = new Logger(LobbyGateway.name);
     @WebSocketServer()
     private server: Server;
 
@@ -30,6 +30,7 @@ export class GameGateway
     ) {}
 
     afterInit(server: any) {
+        this.logger.log('Server running in LOBBY mode');
         this.logger.log('WebSocket Gateway initialized');
     }
 

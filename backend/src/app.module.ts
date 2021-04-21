@@ -16,7 +16,8 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StorageModule } from './storage/storage.module';
-import { GameModule } from './game/game.module';
+import { LobbyModule } from './lobby/lobby.module';
+import { GameServerModule } from './game-server/game-server.module';
 import mongoose from 'mongoose';
 
 @Module({
@@ -77,7 +78,9 @@ import mongoose from 'mongoose';
         UsersModule,
         AuthModule,
         StorageModule,
-        GameModule,
+        // Dynamic module
+        LobbyModule.register(),
+        GameServerModule.register(),
     ],
     controllers: [AppController],
     providers: [AppService],

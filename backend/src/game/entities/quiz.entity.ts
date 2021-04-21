@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaTypes } from 'mongoose';
-import { defaultSchemaOptions } from 'src/constants';
+import { defaultSchemaOptions } from 'src/util/constants';
 import { User } from 'src/users/entities/user.entity';
 import { Question, QuestionSchema } from './question.entity';
 
@@ -37,6 +37,12 @@ export class Quiz {
 
     @Prop([QuestionSchema])
     questions: Question[];
+
+    @Prop()
+    createAt: Date;
+
+    @Prop()
+    updatedAt: Date;
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);

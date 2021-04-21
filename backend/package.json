@@ -97,6 +97,11 @@
             "**/*.(t|j)s"
         ],
         "coverageDirectory": "../coverage",
+        "moduleDirectories": [
+            "node_modules",
+            "src",
+            "."
+        ],
         "testEnvironment": "node"
     }
 }

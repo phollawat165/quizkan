@@ -1,6 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaTypes } from 'mongoose';
-import { defaultSchemaOptions } from 'src/constants';
+import { defaultSchemaOptions } from 'src/util/constants';
 
 export type QuestionDocument = Question & Document;
 
