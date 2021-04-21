@@ -2,6 +2,9 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { AuthModule } from 'src/auth/auth.module';
 import { GameServerGateway } from './gateway/game-server.gateway';
 import { GameServerService } from './game-server.service';
+import AgonesSDK from '@google-cloud/agones-sdk';
+import { PlayersService } from './player/players.service';
+import { GameModule } from 'src/game/game.module';
 
 @Module({})
 export class GameServerModule {
@@ -11,9 +14,17 @@ export class GameServerModule {
             mode === 'game-server' || mode === 'server' || mode === 'game';
         const moduleOptions = load
             ? {
-                  providers: [GameServerGateway, GameServerService],
+                  providers: [
+                      GameServerGateway,
+                      GameServerService,
+                      {
+                          provide: AgonesSDK,
+                          useValue: new AgonesSDK(),
+                      },
+                      PlayersService,
+                  ],
                   exports: [GameServerService],
-                  imports: [AuthModule],
+                  imports: [AuthModule, GameModule],
               }
             : {};
         return {

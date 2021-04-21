@@ -11,13 +11,19 @@ import { GameServerGateway } from './gateway/game-server.gateway';
 import { ModuleRef } from '@nestjs/core';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import AgonesSDK from '@google-cloud/agones-sdk';
+import { PlayersService } from './player/players.service';
+import { FirebaseMessagingService } from '@aginix/nestjs-firebase-admin';
 
 @Injectable()
 export class GameServerService implements OnModuleInit, OnModuleDestroy {
     constructor(
         private moduleRef: ModuleRef,
         private authService: AuthService,
-        private scheudlerRegistry: SchedulerRegistry,
+        private schedulerRegistry: SchedulerRegistry,
+        private agones: AgonesSDK,
+        private playerService: PlayersService,
+        private messagingService: FirebaseMessagingService,
     ) {}
 
     private logger: Logger = new Logger(GameServerService.name);
@@ -29,13 +35,29 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
     // Mapping between user id and user document
     private users: Map<string, UserDocument> = new Map();
 
-    onModuleInit() {
+    async onModuleInit() {
+        // Get Server instance
         this.server = this.moduleRef.get(GameServerGateway).getServer();
         this.logger.log('Loaded server instance');
+        // Agones
+        await this.agones.connect();
+        this.schedulerRegistry.addInterval(
+            'agones:health',
+            setInterval(() => {
+                this.agones.health();
+            }, 3000),
+        );
+        this.agones.watchGameServer((gameServer) => {
+            this.logger.log('Game server status changed!');
+            this.logger.log(gameServer);
+        });
+        this.logger.log('Connected to Agones');
     }
 
-    onModuleDestroy() {
+    async onModuleDestroy() {
         this.logger.log('Shutting down game server');
+        // Agones
+        this.schedulerRegistry.deleteInterval('agones:health');
     }
 
     async handleLogin(client: Socket) {
@@ -48,9 +70,22 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
             client.disconnect();
         } else {
             // Store users details on the server
-            this.sockets.set(user.uid, client);
-            this.users.set(user.uid, user);
-            this.socketIds.set(client.id, user.uid);
+            this.playerService.addPlayerRaw(client, user);
+            // Send welcome message
+            this.schedulerRegistry.addTimeout(
+                `game-server:hello:${user.uid}`,
+                setTimeout(() => {
+                    this.messagingService.sendToDevice(
+                        user.devices.map((device) => device.token),
+                        {
+                            notification: {
+                                title: 'QuizKan',
+                                body: 'Welcome to The Game ',
+                            },
+                        },
+                    );
+                }, 5000),
+            );
             // Send login success
             client.emit('loginSuccess', {
                 user: user.toJSON(),
@@ -66,5 +101,13 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         this.socketIds.delete(client.id);
         this.users.delete(uid);
         this.sockets.delete(uid);
+    }
+
+    getLogger() {
+        return this.logger;
+    }
+
+    getServer() {
+        return this.server;
     }
 }

@@ -17,6 +17,7 @@ class InteractiveNestJS {
             // tslint:disable-next-line: no-string-literal
             targetModule['AppModule'],
         );
+        applicationContext.enableShutdownHooks();
         const awaitOutside = require('await-outside');
         // start node repl
         const server = repl.start({

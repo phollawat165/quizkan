@@ -24,6 +24,7 @@
     "dependencies": {
         "@aginix/nestjs-firebase-admin": "^2.1.1",
         "@azure/storage-blob": "^12.5.0",
+        "@google-cloud/agones-sdk": "^1.14.0-rc",
         "@nestjs/common": "^7.6.15",
         "@nestjs/config": "^0.6.3",
         "@nestjs/core": "^7.6.15",
@@ -42,6 +43,7 @@
         "mongoose": "^5.12.3",
         "mongoose-hidden": "^1.9.1",
         "mongoose-lean-virtuals": "^0.7.6",
+        "nanoid": "^3.1.22",
         "passport": "^0.4.1",
         "passport-cookie": "^1.0.9",
         "passport-http-bearer": "^1.0.1",
