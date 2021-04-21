@@ -13,54 +13,18 @@ const tempQuiz ={id: 0,
     owner: "asdfghj",
     isPublished: true,
     color: 0,
-    count: 4,
+    count: 0,
     createdAt: "2/2/2",
     updatedAt: null,
     question: [
       {
-        id: 0,
-        question: "asadaasddddd",
-        count:3,
+        id:0,
+        question: null,
+        count:0,
         choices: [
-          {id:0,choice:"abc",isCorrect:false},
-          {id:1,choice:"bcd",isCorrect:false},
-          {id:2,choice:"cde",isCorrect:false},
-          {id:3,choice:"def",isCorrect:true},
+          {id:0,choice:null,isCorrect:false},
         ]
         
-      },
-      {
-        id: 1,
-        question: "asadaasddddd",
-        count:3,
-        choices: [
-          {id:0,choice:"123",isCorrect:false},
-          {id:1,choice:"234",isCorrect:true},
-          {id:2,choice:"567",isCorrect:false},
-          {id:3,choice:"987",isCorrect:false},
-        ]
-      },
-      {
-        id: 2,
-        question: "asadaasddddd",
-        count:3,
-        choices: [
-          {id:0,choice:"ฟหก",isCorrect:true},
-          {id:1,choice:"ๆไำ",isCorrect:false},
-          {id:2,choice:"อออ",isCorrect:false},
-          {id:3,choice:"่าี",isCorrect:false},
-        ]
-      },
-      {
-        id: 3,
-        question: "asadaasddddd",
-        count:3,
-        choices: [
-          {id:0,choice:"ผู้",isCorrect:false},
-          {id:1,choice:"ชาย",isCorrect:false},
-          {id:2,choice:"หญิง",isCorrect:true},
-          {id:3,choice:"   ",isCorrect:false},
-        ]
       }
     ]}
     export const EditQuiz = (props) => {

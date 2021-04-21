@@ -1,45 +1,40 @@
 .one{
     background-color: rgba(255, 51, 85, 1);
-    height: 150px;
+    height: 100px;
 
     margin-left: auto;
     margin-right: auto;
 }
-.one:hover{
-    background-color: rgba(255, 51, 85,  0.8);
-}
+
 .two{
     background-color: rgba(5, 66, 185, 1);
-    height: 150px;
+    height: 100px;
 
     margin-left: auto;
     margin-right: auto;
 }
-.two:hover{
-    background-color: rgba(5, 66, 185,  0.8);
-}
+
 .three{
     background-color: rgba(216, 157, 0, 1);
-    height: 150px;
+    height: 100px;
 
     margin-left: auto;
     margin-right: auto;
 }
-.three:hover{
-    background-color: rgba(216, 157, 0, 0.8);
-}
+
 .four{
     background-color: rgba(38, 137, 12, 1);
-    height: 150px;
+    height: 100px;
 
     margin-left: auto;
     margin-right: auto;
 }
-.four:hover{
-    background-color: rgba(38, 137, 12, 0.8);
-}
+
 
 .text{
     color: white;
     font-size: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

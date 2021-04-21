@@ -18,107 +18,109 @@ export const QuestionFrom: React.FC<QuestionProps> = (
   const colors = ["one","two","three","four"]
   const icons = [faStar ,faCircle, faSquare,faHeart];
   const [question, setQuestion] = useState(props.question);
+  const [id, setId] = useState(props.id);
   const [count, setCount] = useState(props.count);
-  const [choice, setChoice] = useState(props.choice);
-  
-  const corrects = [];
-  for(let i=0;i<choice.length;i++){
-    if(props.correct.includes(i)){
-      corrects.push(true);
-    }
-    else{
-      corrects.push(false);
-    }
-  }
-
-
-
-  const [correct, setCorrect] = useState(corrects);
+  const [choices, setChoices] = useState(props.choices);
 
   const handleChoice = (e,i) => {
-    const newC = e.target.value;
-    let choices = choice.slice();
-    let c = choices[i];
-    c = newC;
-    choices[i]=c;
-    setChoice(choices);
+    const result = e.target.value;
+    const choiceArray = choices.slice();
+    choiceArray[i].choice =result;
+    setChoices(choiceArray);
+  };
+  
+  const handleCorrect = (e,i) => {
+    const result = e.target.checked;
+    const choiceArray = choices.slice();
+    choiceArray[i].isCorrect =result;
+    setChoices(choiceArray);
   };
 
-
-  const handleDeleteChoice = idx => {
-    const array = choice.slice();
-    array.splice(idx, 1);
-    
-    console.log("delete")
-    setChoice(array);
+  const handleAddChoice = () => {
+    const choiceArray = choices.slice();
+    choiceArray.push({id:count+1,choice:null,isCorrect:false});
+    setCount(count+1);
+    setChoices(choiceArray);
   }
 
+  const handleDeleteChoice = (idx) => {
+    const array = choices.slice();
+    array.splice(idx, 1);
+    setChoices(array);
+  }
+
+
   const forms =[];
-  for (let i = 0; i < choice.length; i += 2){
+  for (let i = 0; i < choices.length; i += 2){
     forms.push(
-        <Row key={i}>
-        {i < choice.length && (
-            <Col md={1}>
-               <Form.Group>
-                <Form.Control
-                    className="form-control"
-                    type="checkbox"
-                    defaultChecked={correct[i]}
-
-                />
-                </Form.Group>
+        <Row>
+        {i < choices.length && (
+            <Col  key={choices[i].id} md={6}>
+              <Card className="mb-2">
+                  
+                    <Form.Group>
+                    <Form.Control
+                        className="form-control"
+                        type="text"
+                        placeholder="Type here"
+                        defaultValue={choices[i].choice}
+                        onChange={(e) => {handleChoice(e,i)}}
+                    />
+                    </Form.Group>
+                    <Row>
+                      <Col>
+                        <Form.Group>
+                          <Form.Control
+                              className="form-control"
+                              type="checkbox"
+                              defaultChecked={choices[i].isCorrect}
+                              onChange={(e) => {handleCorrect(e,i)}}
+                          />
+                        </Form.Group>
+                      </Col>
+        
+                      <Col>
+                          <button type="button" className=" btn btn-warning" onClick={(e) =>{ handleDeleteChoice(i)}}>
+                            Delete
+                          </button>
+                      </Col>
+                    </Row>
+                    
+              </Card>
             </Col>
         )}
-        {i < choice.length && (
-            <Col md={4}>
-                <Form.Group>
-                <Form.Control
-                    className="form-control"
-                    type="text"
-                    defaultValue={choice[i]}
-                    onChange={(e) => handleChoice(e,i)}
-                />
-                </Form.Group>
-            </Col>
-        )}
-        {i < choice.length && (
-            <Col md={1}>
-                <button type="button" className=" btn btn-warning" onClick={(e) =>{e.preventDefault(); handleDeleteChoice(i)}}>
-                  Delete
-                </button>
-            </Col>
-        )}
-        {i+1 < choice.length && (
-             <Col md={1}>
-             <Form.Group>
-              <Form.Control
-                  className="form-control"
-                  type="checkbox"
-                  defaultChecked={correct[i+1]}
-
-              />
-              </Form.Group>
+        {i+1 < choices.length && (
+            <Col  key={choices[i+1].id} md={6}>
+              <Card className="mb-2">
+                    <Form.Group>
+                    <Form.Control
+                        className="form-control"
+                        type="text"
+                        placeholder="Type here"
+                        defaultValue={choices[i+1].choice}
+                        onChange={(e) => {handleChoice(e,i+1)}}
+                    />
+                    </Form.Group>
+                    <Row>
+                      <Col>
+                        <Form.Group>
+                          <Form.Control
+                              className="form-control"
+                              type="checkbox"
+                              defaultChecked={choices[i+1].isCorrect}
+                              onChange={(e) => {handleCorrect(e,i+1)}}
+                          />
+                        </Form.Group>
+                      </Col>
+        
+                      <Col>
+                          <button type="button" className=" btn btn-warning" onClick={(e) =>{ handleDeleteChoice(i+1)}}>
+                            Delete
+                          </button>
+                      </Col>
+                    </Row>
+              </Card>
           </Col>
-        )}
-        {i + 1 < choice.length && (
-         
-         <Col md={4}>
-             <Form.Group>
-             <Form.Control
-                 className="form-control"
-                 type="text"
-                 defaultValue={choice[i+1]}
-                 onChange={(e) => handleChoice(e,i+1)}
-             />
-             </Form.Group>
-         </Col>
-        )}
-         {i+1 < choice.length && (
-            <Col md={1}>
-                <button type="button" className="btn btn-warning" onClick={(e) =>{e.preventDefault(); handleDeleteChoice(i+1)}}>
-                  Delete
-                </button>
-            </Col>
         )}
       </Row>
     );
@@ -131,16 +133,18 @@ export const QuestionFrom: React.FC<QuestionProps> = (
       <Form.Control
         className="form-control"
         type="text"
-        placeholder="Question"
+        placeholder="Type Your Question"
         defaultValue={question}
-        onChange={(e) => setQuestion(e.target.value)}
+        onChange={(e) => {setQuestion(e.target.value)}}
       />
     </Form.Group>
     <Container>
     {forms}
     </Container>
     <div className="md-12 xs-12">
-      <button type="button" className="btn btn-success btn-block">+</button>
+      <button type="button" className="btn btn-success btn-block"
+      onClick={(e) => {handleAddChoice()}}
+      >+</button>
     </div>
    
     </Form>

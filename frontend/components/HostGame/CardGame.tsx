@@ -8,9 +8,9 @@ import quiz from '../../models/quiz/quiz';
 import style from './CreateQuiz.module.scss';
 import dayjs from 'dayjs';
 
-export type QuizCardProps = Partial<quiz>;
+export type QuizCardProps = Partial<{choice: string,color:number}>;
 
-export const QuizCard: React.FC<QuizCardProps> = (
+export const QuizCardGame: React.FC<QuizCardProps> = (
   props
 ) => {
   const router = useRouter();
@@ -20,8 +20,6 @@ export const QuizCard: React.FC<QuizCardProps> = (
   
       <Card 
         className={`mb-3 ${style[colors[props.color]]}`}
-        onClick={() => {
-          router.push(`/host/${props.id}`);}}
       >
         <Row noGutters className="h-100">
             <Col xs={4} md={4} className="d-flex align-items-center">
@@ -32,10 +30,7 @@ export const QuizCard: React.FC<QuizCardProps> = (
             <Card.Body>
               <h6 className="card-title mb-0">
                   <Row className={style['text']} >
-                    {props.title}
-                </Row>
-                <Row  className={`${style['text']}`}>
-                    {dayjs(props.createdAt).fromNow()}
+                    {props.choice}
                 </Row>
               </h6>
             </Card.Body>
@@ -45,4 +40,4 @@ export const QuizCard: React.FC<QuizCardProps> = (
   );
 };
 
-export default QuizCard;
+export default QuizCardGame;

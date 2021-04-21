@@ -5,30 +5,16 @@ import { Col, Container, Row, Form } from 'react-bootstrap';
 import DefaultLayout from '../../layouts/Default';
 import Link from 'next/link';
 import { observer } from 'mobx-react-lite';
+import { firebase as firebaseClient } from 'services/firebase/client';
+import { useAuth } from 'hooks/auth';
 
 export const login = observer((props) => {
   const router = useRouter();
-  const [state, setState] = useState({
-    username: '',
-    password: '',
-    error: null,
-  });
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setState((prevState) => ({
-      ...prevState,
-      [id]: value,
-    }));
-  };
-
-  const handleSubmitClick = (e) => {
-    e.preventDefault();
-    const payload = {
-      username: state.username,
-      password: state.password,
-    };
-  };
+  const { user } = useAuth();
+  //const [username, setUsername] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+  
   return (
     <DefaultLayout>
       <Head>
@@ -43,10 +29,10 @@ export const login = observer((props) => {
               <Form.Group className="">
                 <Form.Control
                   type="text"
-                  id="username"
-                  value={state.username}
-                  placeholder="Username"
-                  onChange={handleChange}
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={'Email'}
                 />
               </Form.Group>
 
@@ -54,9 +40,9 @@ export const login = observer((props) => {
                 <Form.Control
                   type="password"
                   id="password"
-                  value={state.password}
+                  value={password}
                   placeholder="Password"
-                  onChange={handleChange}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                
               </Form.Group>
@@ -65,7 +51,16 @@ export const login = observer((props) => {
                 <button
                   type="button"
                   className="my-2 btn btn-primary"
-                  onClick={handleSubmitClick}>
+                  onClick={async () => {
+                    try {
+                        await firebaseClient
+                            .auth()
+                            .signInWithEmailAndPassword(email, password);
+                        router.push('/');
+                    } catch (err) {
+                        console.error(err.message);
+                    }
+                }}>
                   Login
                 </button>
               </Row>

@@ -6,6 +6,9 @@ import styles from '../styles/Home.module.scss';
 import DefaultLayout from '../layouts/Default';
 import CardHome from '../components/Home/CardHome';
 
+
+
+
 const cardTagLogin = [
     { tag: 'Join Game', value: 0, link: 'create' },
     { tag: 'Create Game', value: 1, link: 'create' },
@@ -13,13 +16,14 @@ const cardTagLogin = [
     { tag: 'Acheivement', value: 3, link: '' },
 ];
 const cardTagNotLogin = [
-    { tag: 'Join Game', link: '' },
-    { tag: 'Login', link: '' },
-    { tag: 'Registration', link: '' },
+    { tag: 'Join Game', value: 0, link: 'create' },
+    { tag: 'Login', value: 1, link: 'auth/login' },
+    { tag: 'Registration', value: 2, link: 'auth/register' },
 ];
-const rows = [];
+const rowIsLogin = [];
+const rowIsNotLogin =[];
 
-rows.push(
+rowIsLogin.push(
     <Row >
           <Col md={6}>
             <CardHome key={0} {...cardTagLogin[0]} />
@@ -29,7 +33,7 @@ rows.push(
           </Col>
     </Row>
 );
-rows.push(
+rowIsLogin.push(
     <Row>
           <Col md={6}>
             <CardHome key={2} {...cardTagLogin[2]} />
@@ -40,13 +44,33 @@ rows.push(
     </Row>
 );
 
+rowIsNotLogin.push(
+  <Row >
+        <Col md={12}>
+          <CardHome key={0} {...cardTagNotLogin[0]} />
+        </Col>
+       
+  </Row>
+);
+rowIsNotLogin.push(
+  <Row>
+        <Col md={6}>
+          <CardHome key={1} {...cardTagNotLogin[1]} />
+        </Col>
+        <Col md={6}>
+          <CardHome key={2} {...cardTagNotLogin[2]} />
+        </Col>
+  </Row>
+);
+
 
 export default function Home() {
     const { user } = useAuth();
     return (
         <DefaultLayout>
             <Container className="mt-4">
-                {rows}
+                {user && rowIsLogin}
+                {!user && rowIsNotLogin}
             </Container>
             
         </DefaultLayout>

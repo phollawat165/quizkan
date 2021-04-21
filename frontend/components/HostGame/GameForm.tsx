@@ -7,18 +7,16 @@ import quizAns from '../../models/quiz/quizAns';
 import style from './Start.module.scss';
 import dayjs from 'dayjs';
 
-export type QuestionProps = Partial<quizAns>;
 
-export const QuestionFrom: React.FC<QuestionProps> = (
+
+export const QuestionFrom: React.FC<any> = (
   props
 ) => {
   
  
   const colors = ["one","two","three","four"]
   const icons = [faStar ,faCircle, faSquare,faHeart];
-  const [question, setQuestion] = useState(props.question);
-  const [count, setCount] = useState(props.count);
-  const [choices, setChoices] = useState(props.choices);
+  const [choices, setChoices] = useState(props);
 
 
   const forms =[];
@@ -61,12 +59,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (
   return (
     
     <Container>
-      <Row className = "mb-3 ml-2">
-        {question}
-      </Row>
-     
         {forms}
-  
     </Container>
 
     

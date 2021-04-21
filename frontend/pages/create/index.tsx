@@ -14,65 +14,98 @@ const tempQuizs = [
     owner: "asdfghj",
     isPublished: true,
     color: 0,
+    number: 4,
     createdAt: "2/2/2",
     updatedAt: null,
     question: [
       {
+        id: 0,
         question: "asadaasddddd",
-        count: 4,
-        choice: ["abc","bce","cef","efg"],
-        correct: [2]
+        count:3,
+        choices: [
+          {id:0,choice:"abc",isCorrect:false},
+          {id:1,choice:"bcd",isCorrect:false},
+          {id:2,choice:"cde",isCorrect:false},
+          {id:3,choice:"def",isCorrect:true},
+        ]
+        
       },
       {
+        id: 1,
         question: "asadaasddddd",
-        count: 4,
-        choice: ["abc","bce","cef","efg"],
-        correct: [2]
+        count:3,
+        choices: [
+          {id:0,choice:"abc",isCorrect:false},
+          {id:1,choice:"bcd",isCorrect:false},
+          {id:2,choice:"cde",isCorrect:false},
+          {id:3,choice:"def",isCorrect:true},
+        ]
       },
       {
+        id: 2,
         question: "asadaasddddd",
-        count: 4,
-        choice: ["abc","bce","cef","efg"],
-        correct: [3]
+        count:3,
+        choices: [
+          {id:0,choice:"abc",isCorrect:false},
+          {id:1,choice:"bcd",isCorrect:false},
+          {id:2,choice:"cde",isCorrect:false},
+          {id:3,choice:"def",isCorrect:true},
+        ]
       },
-      {
-        question: "asadaasddddd",
-        count: 4,
-        choice: ["abc","bce","cef","efg"],
-        correct: [1]
-      }
     ]},
     {id: 1,
       title:"qwert" ,
       owner: "asdfghj",
       isPublished: true,
       color: 0,
+      number: 4,
       createdAt: "2/2/2",
       updatedAt: null,
       question: [
         {
+          id: 0,
           question: "asadaasddddd",
-          count: 4,
-          choice: ["abc","bce","cef","efg"],
-          correct: [2]
+          count:3,
+          choices: [
+            {id:0,choice:"abc",isCorrect:false},
+            {id:1,choice:"bcd",isCorrect:false},
+            {id:2,choice:"cde",isCorrect:false},
+            {id:3,choice:"def",isCorrect:true},
+          ]
+          
         },
         {
+          id: 1,
           question: "asadaasddddd",
-          count: 4,
-          choice: ["abc","bce","cef","efg"],
-          correct: [2]
+          count:3,
+          choices: [
+            {id:0,choice:"abc",isCorrect:false},
+            {id:1,choice:"bcd",isCorrect:false},
+            {id:2,choice:"cde",isCorrect:false},
+            {id:3,choice:"def",isCorrect:true},
+          ]
         },
         {
+          id: 2,
           question: "asadaasddddd",
-          count: 4,
-          choice: ["abc","bce","cef","efg"],
-          correct: [2]
+          count:3,
+          choices: [
+            {id:0,choice:"abc",isCorrect:false},
+            {id:1,choice:"bcd",isCorrect:false},
+            {id:2,choice:"cde",isCorrect:false},
+            {id:3,choice:"def",isCorrect:true},
+          ]
         },
         {
+          id: 3,
           question: "asadaasddddd",
-          count: 4,
-          choice: ["abc","bce","cef","efg"],
-          correct: [2]
+          count:3,
+          choices: [
+            {id:0,choice:"abc",isCorrect:false},
+            {id:1,choice:"bcd",isCorrect:false},
+            {id:2,choice:"cde",isCorrect:false},
+            {id:3,choice:"def",isCorrect:true},
+          ]
         }
       ]}
       ,
@@ -81,48 +114,56 @@ const tempQuizs = [
       owner: "asdfghj",
       isPublished: true,
       color: 0,
+      number: 4,
       createdAt: "2/2/2",
       updatedAt: null,
       question: [
         {
+          id: 0,
           question: "asadaasddddd",
-          count: 4,
-          choice: ["abc","bce","cef","efg"],
-          correct: [2]
-        }
+          count:3,
+          choices: [
+            {id:0,choice:"abc",isCorrect:false},
+            {id:1,choice:"bcd",isCorrect:false},
+            {id:2,choice:"cde",isCorrect:false},
+            {id:3,choice:"def",isCorrect:true},
+          ]
+          
+        },
+        {
+          id: 1,
+          question: "asadaasddddd",
+          count:3,
+          choices: [
+            {id:0,choice:"abc",isCorrect:false},
+            {id:1,choice:"bcd",isCorrect:false},
+            {id:2,choice:"cde",isCorrect:false},
+            {id:3,choice:"def",isCorrect:true},
+          ]
+        },
       ]},
       {id: 3,
         title:"asdsdsdssfsfd" ,
         owner: "asdfghj",
         isPublished: true,
         color: 0,
+        number: 2,
         createdAt: "2/2/2",
         updatedAt: null,
-        question: [
-          {
-            question: "asadaasddddd",
-            count: 4,
-            choice: ["abc","bce","cef","efg"],
-            correct: [2]
-          }
-        ]},
+        question: []
+      },
         {id: 4,
           title:"zxccv" ,
           owner: "asdfghj",
           isPublished: true,
           color: 0,
+          number: 4,
           createdAt: "2/2/2",
           updatedAt: null,
           question: [
-            {
-              question: "asadaasddddd",
-              count: 4,
-              choice: ["abc","bce","cef","efg"],
-              correct: [2]
-            }
+           
           ]}
 ];
-
 
 export const createGame: React.FC<any> = (props) => {
   
@@ -162,7 +203,7 @@ export const createGame: React.FC<any> = (props) => {
               type="button"
               className="my-2 btn btn-dark float-right"
               onClick={() => {
-                router.push('/jobs/register');
+                router.push('/create/quiz');
               }}>
               Create
             </button>

@@ -61,6 +61,11 @@ export const JoinModal = (props) => {
                         onChange={(e) => setRoom(e.target.value)}
                     />
                 </Form.Group>
+                <button type="button" className="btn btn-primary" onClick={() => {router.push(`/join/${room}`)}}>
+                      Join Room
+                </button>
+
+
                 
             </Form>
         </Container>

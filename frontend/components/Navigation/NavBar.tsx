@@ -10,6 +10,8 @@ import { observer } from 'mobx-react-lite';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import { useAuth } from 'hooks/auth';
+import { firebase as firebaseClient } from 'services/firebase/client';
 
 // Default navigation bar title
 const DEFAULT_NAVBAR_TITLE = 'QuizKan';
@@ -25,6 +27,7 @@ const navBarTitleMapping: Record<string, string> = {
 
 export const NavBar = observer((props) => {
   const router = useRouter();
+  const { user } = useAuth();
   // Navigation bar title for mobile screen
   const [navBarTitle, setNavBarTitle] = useState(DEFAULT_NAVBAR_TITLE);
   const [modalShow, setModalShow] = useState(false);
@@ -58,32 +61,57 @@ export const NavBar = observer((props) => {
               Home
             </Nav.Link>
           </Link>
-          <Link href="/create">
+          {user && 
+          (<Link href="/host">
+            <Nav.Link active={router.pathname === '/host'} href="/host">
+              Host
+            </Nav.Link>
+          </Link>)}
+          {user && 
+          (<Link href="/create">
             <Nav.Link active={router.pathname === '/create'} href="/create">
               Create
             </Nav.Link>
-          </Link>
+          </Link>)}
         </Nav>
         <Nav>
           <NavDropdown
-            title={
-              <>
-                <FontAwesomeIcon icon={faBars} size='lg' />{' '}temp
-              </>
+            title={user &&
+              (<>
+                <FontAwesomeIcon icon={faBars} size='lg' />{'  '}
+                  {user.displayName}
+              </>)
             }
             id="basic-nav-dropdown"
             active={router.pathname.match(/\/auth\/.+/) !== null}
             className={styles['user-menu']}>
+              {!user && (
               <Link href="/auth/register">
                 <NavDropdown.Item href="/auth/register">
                   Register
                 </NavDropdown.Item>
               </Link>
+              )}
+              {!user && (
               <Link href="/auth/login">
                 <NavDropdown.Item href="/auth/login">
                   Login
                 </NavDropdown.Item>
               </Link>
+              )}
+              {user && (
+                <NavDropdown.Item
+                  onClick={async () => {
+                    await firebaseClient
+                        .auth()
+                        .signOut()
+                        .then(() => {
+                            router.push('/');
+                        });
+                 }}>
+                Logout
+              </NavDropdown.Item>
+              )}
           </NavDropdown>
         </Nav>
       </Navbar.Collapse>

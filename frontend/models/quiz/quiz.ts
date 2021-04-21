@@ -6,6 +6,7 @@ export interface quiz {
     owner: string;
     isPublished: boolean;
     color: number;
+    count: number;
     createdAt: string;
     updatedAt: string;
     question: quizAns[];
