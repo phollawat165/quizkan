@@ -16,7 +16,7 @@ export const QuestionFrom: React.FC<any> = (
  
   const colors = ["one","two","three","four"]
   const icons = [faStar ,faCircle, faSquare,faHeart];
-  const [choices, setChoices] = useState(props);
+  const [choices, setChoices] = useState(props.choices);
 
 
   const forms =[];

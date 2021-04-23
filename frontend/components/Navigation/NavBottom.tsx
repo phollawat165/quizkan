@@ -10,10 +10,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { useAuth } from 'hooks/auth';
 
 export const NavBarBottom = (props) => {
   const [modalShow, setModalShow] = useState(false);
   const router = useRouter();
+  const quizID = router.query.id;
   return (
     <Navbar
       bg="light"
@@ -31,8 +33,11 @@ export const NavBarBottom = (props) => {
           width="100px"
           height="100px"
           className="stretched-link mb-10"
-          onClick ={() => {router.push("/host/wait")}}
+          onClick ={() => {router.push(`/player/${quizID}/wait`)}}
         />
+        <button type="button" className="btn btn-primary"  onClick ={() => {router.push(`/host/${quizID}/wait`)}}>
+                  START
+       </button>
       </Nav.Link>
     </Navbar>
   );

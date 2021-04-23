@@ -11,7 +11,7 @@ import QuizPagination from '../../../components/HostGame/Pagination';
 export const hostGame: React.FC<any> = (props) => {
   const router = useRouter();
   const [joinCount, setJoinCount] = useState(0);
-  const [roomID,setRoomID] = useState(router.query.id);
+  const roomID= router.query.id;
   // Render
     return (
       <DefaultLayout>
@@ -29,7 +29,7 @@ export const hostGame: React.FC<any> = (props) => {
               {joinCount}
          </Row>
          <Row>
-            <button type="button" className="btn btn-primary" onClick ={() => {router.push("/")}}>
+            <button type="button" className="btn btn-primary" onClick ={() => {router.push(`/host/${roomID}/game`)}}>
                   Start
             </button>
          </Row>     
