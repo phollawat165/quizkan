@@ -1,6 +1,7 @@
 FROM node:lts-alpine AS base
 WORKDIR /base
 COPY package*.json ./
+COPY yarn.lock ./
 RUN yarn
 COPY . .
 
@@ -14,6 +15,7 @@ FROM node:lts-alpine AS production
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /build/package*.json ./
+COPY --from=build /build/yarn.lock ./
 COPY --from=build /build/.next ./.next
 COPY --from=build /build/public ./public
 COPY --from=build /build/.env ./

@@ -38,6 +38,64 @@ TODO
 
 To generate a new service worker in development environment, you have to comment out pwa.disable in next.config.js then start the development server and close it.
 
+## Deploying on Kubernetes Cluster
+
+1. Create a secret containing Firebase private key, remove --edit flag if the private key is already in place. **Note: the secret value must be base64 encoded.**
+
+```bash
+$ kubectl create --edit -f secret.yaml
+```
+
+2. (This step will varies according to your container registry in which the image is located) Create a secret which contains image pull secret. Below is the example of how to create and use image pull secret file. You can find more details at [Kubernetes Documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
+    2.1 Here's an example of config.json found in ~/.docker/. You may generate this file by issuing `docker login <registry-url>`.
+
+    ```json
+    {
+        "auths": {
+            "ghcr.io": {
+                "auth": "REDACTED"
+            }
+        }
+    }
+    ```
+
+    2.2 Create file named regcred.yaml where .dockerconfigjson is a based64 encoded content of config.json in the step 2.1
+
+    ```yaml
+    apiVersion: v1
+    data:
+        .dockerconfigjson: REDACTED # base64 encoded of the content in config.json
+    kind: Secret
+    metadata:
+        name: regcred
+    type: kubernetes.io/dockerconfigjson
+    ```
+
+3. Apply deployment by running
+
+```bash
+$ kubectl apply -f deployment.yaml
+```
+
+4. Expose the deployment by running
+
+```bash
+$ kubectl expose deployment quizkan-frontend-deployment --type=LoadBalancer --port=3000
+```
+
+5. (Minikube Only) Open another terminal and run the follwing command. Do not close the terminal.
+
+```bash
+$ minikube tunnel
+```
+
+6. View the service by running.
+
+```bash
+$ kubectl get service
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

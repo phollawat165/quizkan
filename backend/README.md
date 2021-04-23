@@ -1,50 +1,60 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+QuizKan backend created using [Nest](https://github.com/nestjs/nest) framework.
+
+## Development Requirements
+1. Fast CPU with >= 4 cores
+2. Memory >= 8GB (we use 16GB Machine for local development) 
+3. OS: Windows, Linux, macOS
+4. NodeJS >= 14
+5. Modern Web Browser
+6. IDE of your choice (We use Visual Studio Code)
+6. Kubernetes Environment (We use Minikube with WSL2 driver. We have never tried with macOS or Linux)
+
+## Guides for each Dependencies
+1. Agones SDK for Local Development: https://agones.dev/site/docs/guides/client-sdks/local/
+2. Firebase CLI (in which Firebase Emulator is bundled): `npm -g install firebase-tools` or download form https://firebase.google.com/docs/cli
+3. MongoDB: https://docs.mongodb.com/manual/administration/install-community/
+4. Redis: https://redis.io/topics/quickstart , Note: Only avaiable in Linux and macOS but you can also run it in the container.
+5. Google Cloud Storage Emulator: https://github.com/fsouza/fake-gcs-server or S3 Compatible Storage Emulator
 
 ## Installation
+0. Make sure you are in the /backend directoy
+1. Setup MongoDB, Firebase Emulator, Cloud Storage Emulator, Agones SDK Server and Redis.
+2. Modify .env file according to the example. Don't forget Firebase private key!
+3. Run the following command to install dependencies.
 
 ```bash
-$ npm install
+$ yarn
 ```
 
 ## Running the app
+Available environment variables are in .env.example file.
 
 ```bash
 # development
-$ npm run start
+$ yarn run start
 
 # watch mode
-$ npm run start:dev
+$ yarn run start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn run start:prod
 ```
 
+## Overriding Environment Variables From Shell
+### Using cross-env for modifying environment variable across a platform
+Install cross-env globally using npm or yarn. Note that environment variables from shell have higher priority than from .env file.
+```bash
+# Example of running in the game server mode with --watch option (Hot reloading)
+$ cross-env HOST=127.0.0.1 PORT=8000 MODE=game yarn start:dev
+```
+### Using env-cmd as alterative to cross-env
+Install it globally using npm or yarn. Firstly, create the custom .env file e.g, .env.local. After that, run the following command to load environment variables from .env.local
+```bash
+$ env-cmd -f .env.local yarn start
+```
+More exmaple at https://github.com/toddbluhm/env-cmd
 ## Test
 
 ```bash
@@ -58,16 +68,36 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
+## Building and running using Docker
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Make sure you are in the /backend directoy
 
-## Stay in touch
+Example if other services are running in the host machine
 
--   Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
--   Website - [https://nestjs.com](https://nestjs.com/)
--   Twitter - [@nestframework](https://twitter.com/nestframework)
+Powershell
 
-## License
+```powershell
+docker build -t quizkan-backend .
+docker run -d --env-file .env `
+-e "REDIS_ENABLED=true" `
+-e "REDIS_HOST=host.docker.internal" `
+-e "AZURE_STORAGE_ENABLED=true" `
+-e "AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;" `
+-e "MONGODB_URI=mongodb://host.docker.internal:27017/quizkan" `
+-e "PORT=8000" `
+-p 8000:8000 quizkan-backend
+```
 
-Nest is [MIT licensed](LICENSE).
+Bash
+
+```bash
+$ docker build -t quizkan-backend .
+$ docker run -d --env-file .env \
+-e "REDIS_ENABLED=true" \
+-e "REDIS_HOST=host.docker.internal" \
+-e "AZURE_STORAGE_ENABLED=true" \
+-e "AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;" \
+-e "MONGODB_URI=mongodb://host.docker.internal:27017/quizkan" \
+-e "PORT=8000" \
+-p 8000:8000 quizkan-backend
+```

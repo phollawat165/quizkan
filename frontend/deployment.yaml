@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quizkan-frontend-deployment
+  labels:
+    app: quizkan-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: quizkan-frontend
+  template:
+    metadata:
+      labels:
+        app: quizkan-frontend
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: quizkan-frontend
+          image: ghcr.io/zuikaru/quizkan-frontend
+          ports:
+            - containerPort: 3000
+          env:
+            - name: FIREBASE_ADMIN_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quizkan-frontend-secret
+                  key: FIREBASE_ADMIN_PRIVATE_KEY
+                  optional: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+  
