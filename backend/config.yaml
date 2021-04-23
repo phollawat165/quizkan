@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quizkan-backend-config
+  namespace: default
+data: 
+  # Firebase
+  FIREBASE_ADMIN_CLIENT_EMAIL: "firebase-adminsdk-if1a7@quizkan-game.iam.gserviceaccount.com"
+  FIREBASE_ADMIN_PROJECT_ID: "quizkan-game"
+  # Redis
+  REDIS_ENABLED: "true"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  # Mongo
+  MONGODB_URI: "mongodb://mongo:27017/quizkan"

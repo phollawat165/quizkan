@@ -81,8 +81,6 @@ docker build -t quizkan-backend .
 docker run -d --env-file .env `
 -e "REDIS_ENABLED=true" `
 -e "REDIS_HOST=host.docker.internal" `
--e "AZURE_STORAGE_ENABLED=true" `
--e "AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;" `
 -e "MONGODB_URI=mongodb://host.docker.internal:27017/quizkan" `
 -e "PORT=8000" `
 -p 8000:8000 quizkan-backend
@@ -95,9 +93,84 @@ $ docker build -t quizkan-backend .
 $ docker run -d --env-file .env \
 -e "REDIS_ENABLED=true" \
 -e "REDIS_HOST=host.docker.internal" \
--e "AZURE_STORAGE_ENABLED=true" \
--e "AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;" \
 -e "MONGODB_URI=mongodb://host.docker.internal:27017/quizkan" \
 -e "PORT=8000" \
 -p 8000:8000 quizkan-backend
+```
+
+## Deploying Kubernetes Cluster
+1. Create a secret containing Firebase private key and/or mongodb uri, remove --edit flag if the private key is already in place. **Note: the secret value must be base64 encoded.**
+
+```bash
+$ kubectl create --edit -f secret.yaml
+```
+
+2. (This step will varies according to your container registry in which the image is located) Create a secret which contains image pull secret. Below is the example of how to create and use image pull secret file. You can find more details at [Kubernetes Documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
+   2.1 Here's an example of config.json found in ~/.docker/. You may generate this file by issuing `docker login <registry-url>`.
+
+   ```json
+   {
+     "auths": {
+       "ghcr.io": {
+         "auth": "REDACTED"
+       }
+     }
+   }
+   ```
+
+   2.2 Create file named regcred.yaml where .dockerconfigjson is a based64 encoded content of config.json in the step 2.1
+
+   ```yaml
+   apiVersion: v1
+   data:
+     .dockerconfigjson: REDACTED # base64 encoded of the content in config.json
+   kind: Secret
+   metadata:
+     name: regcred
+   type: kubernetes.io/dockerconfigjson
+   ```
+
+3. Apply configuration by running
+
+```bash
+$ kubectl apply -f config.yaml
+```
+
+4. Setup Redis and MongoDB service by running the following commands
+
+Local development environment
+```bash
+$ kubectl apply -f ../mongo/service-local.yaml
+$ kubectl apply -f ../redis/service-local.yaml
+$ kubectl patch endpoints redis --patch '{"subsets": [{"addresses": [{"ip": "'$( minikube ssh 'grep host.minikube.internal /etc/hosts | cut -f1' | tr -d '[:space:]')'"}]}]}'
+$ kubectl patch endpoints mongo --patch '{"subsets": [{"addresses": [{"ip": "'$( minikube ssh 'grep host.minikube.internal /etc/hosts | cut -f1' | tr -d '[:space:]')'"}]}]}'
+```
+
+Production environment
+
+TODO
+
+5. Apply deployment by running
+
+```bash
+$ kubectl apply -f deployment.yaml
+```
+
+6. Expose the deployment by running
+
+```bash
+$ kubectl expose deployment quizkan-frontend-deployment --type=LoadBalancer --port=3000
+```
+
+7. (Minikube Only) Open another terminal and run the follwing command. Do not close the terminal.
+
+```bash
+$ minikube tunnel
+```
+
+8. View the service by running.
+
+```bash
+$ kubectl get service
 ```
