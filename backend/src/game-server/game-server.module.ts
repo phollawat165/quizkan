@@ -5,6 +5,7 @@ import { GameServerService } from './game-server.service';
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { PlayersService } from './player/players.service';
 import { GameModule } from 'src/game/game.module';
+import { AdminController } from './admin/admin.controller';
 
 @Module({})
 export class GameServerModule {
@@ -25,6 +26,7 @@ export class GameServerModule {
                   ],
                   exports: [GameServerService],
                   imports: [AuthModule, GameModule],
+                  controllers: [AdminController],
               }
             : {};
         return {

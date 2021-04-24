@@ -3,8 +3,8 @@ kind: GameServer
 metadata:
   # generate a unique name
   # will need to be created with `kubectl create`
-  generateName: quizkan-backend-gameserver-
-  name: quizkan-backend-gameserver
+  generateName: quizkan-gameserver-
+  name: quizkan-gameserver
 spec:
   ports:
     - name: default
@@ -21,7 +21,7 @@ spec:
       imagePullSecrets:
       - name: regcred
       containers:
-      - name: quizkan-backend-gameserver
+      - name: quizkan-gameserver
         image: ghcr.io/zuikaru/quizkan-backend
         ports: 
           - containerPort: 8000
