@@ -9,11 +9,13 @@ import dayjs from 'dayjs';
 import { AuthService } from 'src/auth/auth.service';
 import { GameServerGateway } from './gateway/game-server.gateway';
 import { ModuleRef } from '@nestjs/core';
-import { UserDocument } from 'src/users/entities/user.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { PlayersService } from './player/players.service';
 import { FirebaseMessagingService } from '@aginix/nestjs-firebase-admin';
+import { GamesService } from 'src/game/games.service';
+import { GameDocument } from 'src/game/entities/game.entity';
+import { GameState } from 'src/game/game-state.enum';
 
 @Injectable()
 export class GameServerService implements OnModuleInit, OnModuleDestroy {
@@ -24,16 +26,15 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         private agones: AgonesSDK,
         private playerService: PlayersService,
         private messagingService: FirebaseMessagingService,
+        private gamesService: GamesService,
     ) {}
 
     private logger: Logger = new Logger(GameServerService.name);
     private server: Server;
-    // Mapping between user id and socket
-    private sockets: Map<string, Socket> = new Map();
-    // Mapping between socket id and user id
-    private socketIds: Map<string, string> = new Map();
-    // Mapping between user id and user document
-    private users: Map<string, UserDocument> = new Map();
+    // Current game;
+    private game: GameDocument = null;
+    // If shutdown by user
+    private finishedCalled = false;
 
     async onModuleInit() {
         // Get Server instance
@@ -41,23 +42,52 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         this.logger.log('Loaded server instance');
         // Agones
         await this.agones.connect();
+        // Health ping
         this.schedulerRegistry.addInterval(
             'agones:health',
             setInterval(() => {
                 this.agones.health();
             }, 3000),
         );
+        // Listen for game server chaange
         this.agones.watchGameServer((gameServer) => {
-            this.logger.log('Game server status changed!');
-            this.logger.log(gameServer);
+            const annotationMap = new Map<string, string>(
+                gameServer.objectMeta.annotationsMap as any,
+            );
+            const gameId = annotationMap.get('gameId');
+            // Retrieve game session info
+            if (gameServer.status.state === 'Allocated') {
+                if (
+                    this.game === null ||
+                    this.game.state == GameState.CREATED
+                ) {
+                    this.logger.log('Retrieving game session info');
+                    this.gamesService.findOne(gameId).then((gameDoc) => {
+                        // Set game document
+                        this.game = gameDoc;
+                        this.logger.log('Done retrieving game session info');
+                    });
+                }
+            }
         });
         this.logger.log('Connected to Agones');
     }
 
     async onModuleDestroy() {
         this.logger.log('Shutting down game server');
+        await this.finish();
         // Agones
         this.schedulerRegistry.deleteInterval('agones:health');
+    }
+
+    async finish(requestShutdown = true) {
+        if (this.finishedCalled) return;
+        // Set state to finished
+        this.game.state = GameState.FINISHED;
+        await this.game.save();
+        // Request Agones to do a shutdown process
+        if (requestShutdown) await this.agones.shutdown();
+        this.finishedCalled = true;
     }
 
     async handleLogin(client: Socket) {
@@ -97,10 +127,12 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
 
     async handleDisconnect(client: Socket) {
         // Remove users details on the server
-        const uid = this.socketIds.get(client.id);
-        this.socketIds.delete(client.id);
-        this.users.delete(uid);
-        this.sockets.delete(uid);
+        const player = this.playerService.getPlayerBySocket(client);
+        this.playerService.removePlayer(player);
+    }
+
+    getGame() {
+        return this.game;
     }
 
     getLogger() {
