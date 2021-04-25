@@ -20,7 +20,10 @@ export function AuthProvider({ children }: any) {
                 console.log(`no token found...`);
                 setUser(null);
                 nookies.destroy(null, 'token');
-                nookies.set(null, 'token', '', { path: '/' });
+                nookies.set(null, 'token', '', {
+                    path: '/',
+                    domain: window.location.hostname,
+                });
                 return;
             }
 
