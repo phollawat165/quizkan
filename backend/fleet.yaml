@@ -1,0 +1,109 @@
+apiVersion: "agones.dev/v1"
+kind: Fleet
+metadata:
+  name: quizkan-gameserver
+spec:
+  replicas: 2
+  scheduling: Packed
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    # GameServer metadata
+    metadata:
+      labels:
+        foo: bar
+    # GameServer spec
+    spec:
+      ports:
+        - name: default
+          portPolicy: Dynamic
+          containerPort: 8000
+          protocol: TCP
+      health:
+        # waits for 30 seconds before checking health
+        initialDelaySeconds: 30
+        # health ping sends every 20 seconds, so let's give it 5 seconds buffer
+        periodSeconds: 25
+      template:
+        spec:
+          imagePullSecrets:
+          - name: regcred
+          containers:
+          - name: quizkan-gameserver
+            image: ghcr.io/zuikaru/quizkan-backend
+            ports: 
+              - containerPort: 8000
+            env:
+              - name: MODE
+                value: "game"
+              - name: FIREBASE_ADMIN_PRIVATE_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: quizkan-frontend-secret
+                    key: FIREBASE_ADMIN_PRIVATE_KEY
+                    optional: true
+              - name: FIREBASE_ADMIN_CLIENT_EMAIL
+                value: "firebase-adminsdk-if1a7@quizkan-game.iam.gserviceaccount.com"
+              - name: FIREBASE_ADMIN_CLIENT_EMAIL
+                valueFrom: 
+                  configMapKeyRef:
+                    name: quizkan-backend-config
+                    key: FIREBASE_ADMIN_CLIENT_EMAIL
+                    optional: true
+              - name: FIREBASE_ADMIN_PROJECT_ID
+                value: "quizkan-game"
+              - name: FIREBASE_ADMIN_PROJECT_ID
+                valueFrom:
+                  configMapKeyRef:
+                    name: quizkan-backend-config
+                    key: FIREBASE_ADMIN_PROJECT_ID
+                    optional: true
+              - name: MONGODB_URI
+                value: "mongodb://mongo:27017/quizkan"
+              - name: MONGODB_URI
+                valueFrom:
+                  secretKeyRef:
+                    name: quizkan-backend-secret
+                    key: MONGODB_URI
+                    optional: true
+              - name: REDIS_ENABLED
+                value: "false"
+              - name: REDIS_HOST
+                value: "redis"
+              - name: REDIS_HOST
+                valueFrom:
+                  configMapKeyRef:
+                    name: quizkan-backend-config
+                    key: REDIS_HOST
+                    optional: true
+              - name: REDIS_PORT
+                value: "6379"
+              - name: REDIS_PORT
+                valueFrom:
+                  configMapKeyRef:
+                    name: quizkan-backend-config
+                    key: REDIS_PORT
+                    optional: true
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "250m"
+              limits:
+                memory: "256Mi"
+                cpu: "500m" 
+---
+apiVersion: "autoscaling.agones.dev/v1"
+kind: FleetAutoscaler
+metadata:
+  name: quizkan-gameserver-autoscaler
+spec:
+  fleetName: quizkan-gameserver
+  policy:
+    type: Buffer
+    buffer:
+      bufferSize: 2
+      minReplicas: 0
+      maxReplicas: 10

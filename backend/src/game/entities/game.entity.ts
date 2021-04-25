@@ -48,6 +48,9 @@ export class Game {
     url: string;
 
     @Prop()
+    port: number;
+
+    @Prop()
     createAt: Date;
 
     @Prop()

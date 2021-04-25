@@ -36,7 +36,7 @@ export class GamesService {
     }
 
     async update(id: string, updateGameDto: UpdateGameDto) {
-        return this.gameModel.findByIdAndUpdate(id, updateGameDto);
+        return this.gameModel.findByIdAndUpdate(id, updateGameDto as any);
     }
 
     async remove(id: string) {

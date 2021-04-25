@@ -1,0 +1,30 @@
+# Please see https://github.com/kubernetes/minikube/issues/8439 if you are using Minikube
+# TLDR: run the following 
+#     minikube ssh 'grep host.minikube.internal /etc/hosts | cut -f1'
+# and put the ip address on the externalName field
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  selector:
+    app: redis
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 6379 # doesn't actually matter
+    protocol: TCP
+---
+kind: Endpoints
+apiVersion: v1
+metadata:
+  name: redis
+subsets:
+  - addresses:
+      - ip: 192.168.65.2 # command below will update this if needed
+    ports:
+      - port: 6379
+        name: app
+        protocol: TCP
