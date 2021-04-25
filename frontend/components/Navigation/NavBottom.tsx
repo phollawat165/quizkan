@@ -22,20 +22,11 @@ export const NavBarBottom = (props) => {
       variant="light"
       expand="md"
       fixed="bottom"
-      className="d-md-none"
       style={{ height: '2.5rem' }}>
       <Nav.Link
         className="justify-content-center mx-auto position-relative"
         style={{ bottom: '2.75rem' }}>
-        <img
-          role="button"
-          src="/images/search.svg"
-          width="100px"
-          height="100px"
-          className="stretched-link mb-10"
-          onClick ={() => {router.push(`/player/${quizID}/wait`)}}
-        />
-        <button type="button" className="btn btn-primary"  onClick ={() => {router.push(`/host/${quizID}/wait`)}}>
+        <button type="button" className="btn btn-primary"  style={{ width: '150px'}} onClick ={() => {router.push(`/host/${quizID}/wait`)}}>
                   START
        </button>
       </Nav.Link>

@@ -20,10 +20,10 @@ export const hostGame: React.FC<any> = (props) => {
           <title>Host Game Wait</title>
         </Head>
         <Container className="mt-4">
-          <Row>
+          <Row className="justify-content-center text-center mb-4">
               Room ID : {router.query.id}
          </Row>
-         <Row>
+         <Row className="justify-content-center text-center mb-4" >
             Wait for Host
          </Row>     
         </Container>

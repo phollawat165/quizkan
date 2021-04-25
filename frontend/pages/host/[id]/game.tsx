@@ -103,14 +103,17 @@ export const HostGameplay = (props) => {
                   {word}
             </button>
         </Row>
-        <Container>
+        
+        <Card className="mt-4">
+          <Card.Title>
+             Question 1
+          </Card.Title>
           <Row className = "mb-3 ml-2">
             {question.question}
           </Row>
-        
-            {forms}
-      
-        </Container>
+          {forms}
+        </Card>
+
       </Container>
     </DefaultLayout>
     

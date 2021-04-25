@@ -19,16 +19,16 @@ export const hostGame: React.FC<any> = (props) => {
           <title>Host Game Wait</title>
         </Head>
         <Container className="mt-4">
-          <Row>
+          <Row  className="justify-content-center text-center mb-4">
               Room ID : {router.query.id}
-         </Row>
-          <Row>
+         </Row >
+          <Row  className="justify-content-center text-center mb-4">
               People Join
          </Row>
-         <Row>
+         <Row  className="justify-content-center text-center mb-4">
               {joinCount}
          </Row>
-         <Row>
+         <Row  className="justify-content-center mb-4">
             <button type="button" className="btn btn-primary" onClick ={() => {router.push(`/host/${roomID}/game`)}}>
                   Start
             </button>

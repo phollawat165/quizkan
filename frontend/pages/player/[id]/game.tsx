@@ -34,6 +34,7 @@ export const HostGameplay = (props) => {
   const router = useRouter();
   const { user } = useAuth();
   const [question, setQuestion] = useState(tempQuiz());
+  const roomID= router.query.id;
   const colors = ["one","two","three","four"];
   const icons = [faStar ,faCircle, faSquare,faHeart];
   const [score,setScore]=useState(103);
@@ -46,7 +47,7 @@ export const HostGameplay = (props) => {
         {i < question.choices.length && (
             <Col  key={i} md={6}>
               <Card className={`mb-2 ${style[colors[i%4]]} `} onClick={() => {
-                    router.push(`/player/${tempQuiz().id}/wait`);
+                    router.push(`/player/${roomID}/wait`);
                 }}>
                 <Row noGutters className="h-100">
                   {/* Content */}
@@ -61,7 +62,7 @@ export const HostGameplay = (props) => {
         {i+1 < question.choices.length && (
             <Col  key={i+1} md={6}>
               <Card className={`mb-2 ${style[colors[(i+1)%4]]}`}  onClick={() => {
-                    router.push(`/player/${tempQuiz().id}}/wait`);
+                    router.push(`/player/${roomID}/wait`);
                 }}>
                 <Row noGutters className="h-100">
                   {/* Content */}

@@ -98,11 +98,6 @@ export const HostQuiz = (props) => {
       </Head>
      
       <Container className="mt-4">
-        <Row>
-            <button type="button" className="btn btn-primary" onClick ={() => {router.push(`/host/${quizId}/wait`)}}>
-                  Start
-            </button>
-        </Row>
         {rows}
       </Container>
     </HostLayout>
