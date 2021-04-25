@@ -51,16 +51,16 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         );
         // Listen for game server chaange
         this.agones.watchGameServer((gameServer) => {
-            const annotationMap = new Map<string, string>(
-                gameServer.objectMeta.annotationsMap as any,
-            );
-            const gameId = annotationMap.get('gameId');
             // Retrieve game session info
             if (gameServer.status.state === 'Allocated') {
                 if (
                     this.game === null ||
                     this.game.state == GameState.CREATED
                 ) {
+                    const annotationMap = new Map<string, string>(
+                        gameServer.objectMeta.annotationsMap as any,
+                    );
+                    const gameId = annotationMap.get('gameId');
                     this.logger.log('Retrieving game session info');
                     this.gamesService.findOne(gameId).then((gameDoc) => {
                         // Set game document
@@ -133,6 +133,16 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
 
     getGame() {
         return this.game;
+    }
+
+    setGame(game: GameDocument) {
+        this.game = game;
+    }
+
+    async setGameState(gameState: GameState) {
+        if (this.game === null) return;
+        this.game.state = gameState;
+        await this.game.save();
     }
 
     getLogger() {
