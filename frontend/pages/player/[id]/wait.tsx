@@ -8,7 +8,7 @@ import QuizGrid from '../../../components/HostGame/Grid';
 import QuizPagination from '../../../components/HostGame/Pagination';
 
 
-export const hostGame: React.FC<any> = (props) => {
+export const  PlayerWait: React.FC<any> = (props) => {
   const router = useRouter();
   const [joinCount, setJoinCount] = useState(0);
   const [roomID,setRoomID] = useState(router.query.id);
@@ -34,5 +34,5 @@ export const hostGame: React.FC<any> = (props) => {
   
 
   
-  export default hostGame;
+  export default PlayerWait;
   

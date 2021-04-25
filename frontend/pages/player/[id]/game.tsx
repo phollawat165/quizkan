@@ -14,6 +14,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar ,faCircle, faSquare,faHeart ,faCheck} from '@fortawesome/free-solid-svg-icons';
 import style from '../../../components/Home/Home.module.scss';
 import temp from 'pages/auth/temp';
+import { useRootStore } from '../../../stores/stores';
+import { observer } from 'mobx-react-lite';
 
 const tempQuiz = () =>{
    return  {
@@ -30,15 +32,22 @@ const tempQuiz = () =>{
 }
    
 
-export const HostGameplay = (props) => {
+export const PlayerGameplay = observer((props) => {
   const router = useRouter();
   const { user } = useAuth();
+  const playerStore = useRootStore().playerStore;
   const [question, setQuestion] = useState(tempQuiz());
   const roomID= router.query.id;
   const colors = ["one","two","three","four"];
   const icons = [faStar ,faCircle, faSquare,faHeart];
-  const [score,setScore]=useState(103);
-  const handleClick = () => {
+  const [score,setScore]=useState(playerStore.totalScore);
+  const [currentTime,serCurrentTime]=useState(123);
+
+
+  const handleClick = async (idx) => {
+    await playerStore.setTimer(currentTime);
+    await playerStore.setChoice(idx);
+    router.push(`/player/${roomID}/score`);
   }
   const forms =[];
   for (let i = 0; i < question.choices.length; i += 2){
@@ -46,9 +55,7 @@ export const HostGameplay = (props) => {
         <Row>
         {i < question.choices.length && (
             <Col  key={i} md={6}>
-              <Card className={`mb-2 ${style[colors[i%4]]} `} onClick={() => {
-                    router.push(`/player/${roomID}/wait`);
-                }}>
+              <Card className={`mb-2 ${style[colors[i%4]]} `} onClick={() => {handleClick(i)}}>
                 <Row noGutters className="h-100">
                   {/* Content */}
             
@@ -61,9 +68,7 @@ export const HostGameplay = (props) => {
         )}
         {i+1 < question.choices.length && (
             <Col  key={i+1} md={6}>
-              <Card className={`mb-2 ${style[colors[(i+1)%4]]}`}  onClick={() => {
-                    router.push(`/player/${roomID}/wait`);
-                }}>
+              <Card className={`mb-2 ${style[colors[(i+1)%4]]}`}  onClick={() => {handleClick(i+1)}}>
                 <Row noGutters className="h-100">
                   {/* Content */}
           
@@ -93,8 +98,8 @@ export const HostGameplay = (props) => {
     </DefaultLayout>
     
   );
-};
+});
 
 
 
-export default HostGameplay;
+export default PlayerGameplay;
