@@ -14,6 +14,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar ,faCircle, faSquare,faHeart ,faCheck} from '@fortawesome/free-solid-svg-icons';
 import style from '../../../components/HostGame/Start.module.scss';
 import temp from 'pages/auth/temp';
+import { useRootStore } from '../../../stores/stores';
+import { observer } from 'mobx-react-lite';
+import { useEffectOnce, useLifecycles } from 'react-use';
 
 const tempQuiz = () =>{
    return  {
@@ -30,12 +33,14 @@ const tempQuiz = () =>{
 }
    
 
-export const HostGameplay = (props) => {
+export const HostGameplay = observer((props) => {
   const router = useRouter();
+  const HostStore = useRootStore().hostStore;
+  const WebSocketStore = useRootStore().webSocketStore;
   const { user } = useAuth();
   const [show,setShow]= useState(false);
   const [word,setWord]=useState("Answer");
-  const quizId = tempQuiz().id;
+  const quizId = router.query.id;
   const unANS = tempQuiz();
     for(let i=0;i<unANS.choices.length;i+=1){
       unANS.choices[i].isCorrect = false;
@@ -43,17 +48,49 @@ export const HostGameplay = (props) => {
   const [question, setQuestion] = useState(unANS);
   const colors = ["one","two","three","four"];
 
+  const correct = [];
+  for(let i=0;i<tempQuiz().choices.length;i+=1){
+    if(tempQuiz().choices[i].isCorrect){
+      correct.push(i);
+    }
+  }
+
   const handleClick = () => {
     if(!show){
         const ANS = tempQuiz();
         setQuestion(ANS);
         setShow(true);
         setWord("next");
+        WebSocketStore.socket.emit('send_correct_choices', {
+          chatRoomId: quizId,
+          choices: correct
+        });
     }
     else{
         router.push(`/host/${quizId}/score`);
     }
   }
+  useLifecycles(
+    () => {
+      WebSocketStore.connect();
+      // registers
+    },
+    () => {
+      // unregister
+      WebSocketStore.socket.off('recieve_message');
+      // shutdown
+      WebSocketStore.close();
+    }
+  );
+ 
+  const sendChoices = () => {
+    WebSocketStore.socket.emit('send_number_of_choices', {
+        chatRoomId: quizId,
+        question: HostStore.question,
+        choices: question.choices.length
+      });
+  };
+  sendChoices();
   const forms =[];
   for (let i = 0; i < question.choices.length; i += 2){
     forms.push(
@@ -106,7 +143,7 @@ export const HostGameplay = (props) => {
         
         <Card className="mt-4">
           <Card.Title>
-             Question 1
+             Question {HostStore.question + 1}
           </Card.Title>
           <Row className = "mb-3 ml-2">
             {question.question}
@@ -118,7 +155,7 @@ export const HostGameplay = (props) => {
     </DefaultLayout>
     
   );
-};
+});
 
 
 

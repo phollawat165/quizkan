@@ -8,15 +8,17 @@ import QuizGrid from '../../../components/HostGame/Grid';
 import QuizPagination from '../../../components/HostGame/Pagination';
 import { useRootStore } from '../../../stores/stores';
 import { observer } from 'mobx-react-lite';
+import { useEffectOnce, useLifecycles } from 'react-use';
 
 export const  PlayerScore: React.FC<any> = observer((props) => {
   const router = useRouter();
   const playerStore = useRootStore().playerStore;
+  const WebSocketStore = useRootStore().webSocketStore;
   const [joinCount, setJoinCount] = useState(0);
   const [roomID,setRoomID] = useState(router.query.id);
   const [start,serStart]=useState(false);
   const [score,setScore]=useState(playerStore.totalScore);
-  
+  const [correct,setCorrect]=useState([]);
 
   const tempQuiz = () =>{
     return  {
@@ -38,6 +40,37 @@ export const  PlayerScore: React.FC<any> = observer((props) => {
     await playerStore.setTimer(0);
     await playerStore.setChoice(null);
   }
+  useLifecycles(
+    () => {
+      WebSocketStore.connect();
+      // registers
+    },
+    () => {
+      // unregister
+      WebSocketStore.socket.off('recieve_message');
+      // shutdown
+      WebSocketStore.close();
+    }
+  );
+  useEffect(() => {
+    WebSocketStore.socket.on("recieve_correct_choices", (payload) => {
+      if(payload.id==roomID){
+        setCorrect(payload.choices);
+      }
+    });
+  }, []);
+  useEffect(() => {
+    handleClick();
+  }, [correct]);
+
+  useEffect(() => {
+    WebSocketStore.socket.on('recieve_start', (payload) => {
+      if(payload.id==roomID){
+        router.push(`/player/${roomID}/game`)
+      }
+    });
+  }, []);
+
   // Render
     return (
       <DefaultLayout>

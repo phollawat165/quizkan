@@ -16,32 +16,39 @@ import style from '../../../components/Home/Home.module.scss';
 import temp from 'pages/auth/temp';
 import { useRootStore } from '../../../stores/stores';
 import { observer } from 'mobx-react-lite';
-
-const tempQuiz = () =>{
-   return  {
-    id: 0,
-    question: "asadaasddddd",
-    count:3,
-    choices: [
-      {id:0,choice:"abc",isCorrect:false},
-      {id:1,choice:"bcd",isCorrect:false},
-      {id:2,choice:"cde",isCorrect:true},
-      {id:3,choice:"def",isCorrect:false},
-    ]
-  };
-}
-   
+import { useEffectOnce, useLifecycles } from 'react-use';
 
 export const PlayerGameplay = observer((props) => {
   const router = useRouter();
   const { user } = useAuth();
   const playerStore = useRootStore().playerStore;
-  const [question, setQuestion] = useState(tempQuiz());
+  const WebSocketStore = useRootStore().webSocketStore;
+  const [question, setQuestion] = useState(4);
   const roomID= router.query.id;
   const colors = ["one","two","three","four"];
   const icons = [faStar ,faCircle, faSquare,faHeart];
   const [score,setScore]=useState(playerStore.totalScore);
   const [currentTime,serCurrentTime]=useState(123);
+
+  useLifecycles(
+    () => {
+      WebSocketStore.connect();
+      // registers
+    },
+    () => {
+      // unregister
+      WebSocketStore.socket.off('recieve_message');
+      // shutdown
+      WebSocketStore.close();
+    }
+  );
+  useEffect(() => {
+    WebSocketStore.socket.on("recieve_number_of_choices", (payload) => {
+      if(payload.id==roomID){
+        setQuestion(payload.choices);
+      }
+    });
+  }, []);
 
 
   const handleClick = async (idx) => {
@@ -50,10 +57,10 @@ export const PlayerGameplay = observer((props) => {
     router.push(`/player/${roomID}/score`);
   }
   const forms =[];
-  for (let i = 0; i < question.choices.length; i += 2){
+  for (let i = 0; i < question; i += 2){
     forms.push(
         <Row>
-        {i < question.choices.length && (
+        {i < question && (
             <Col  key={i} md={6}>
               <Card className={`mb-2 ${style[colors[i%4]]} `} onClick={() => {handleClick(i)}}>
                 <Row noGutters className="h-100">
@@ -66,7 +73,7 @@ export const PlayerGameplay = observer((props) => {
               </Card>
             </Col>
         )}
-        {i+1 < question.choices.length && (
+        {i+1 < question && (
             <Col  key={i+1} md={6}>
               <Card className={`mb-2 ${style[colors[(i+1)%4]]}`}  onClick={() => {handleClick(i+1)}}>
                 <Row noGutters className="h-100">

@@ -6,12 +6,38 @@ import styles from '../styles/Home.module.scss';
 import DefaultLayout from '../../../layouts/Default';
 import QuizGrid from '../../../components/HostGame/Grid';
 import QuizPagination from '../../../components/HostGame/Pagination';
+import { useRootStore } from '../../../stores/stores';
+import { observer } from 'mobx-react-lite';
+import { useEffectOnce, useLifecycles } from 'react-use';
 
-
-export const hostGame: React.FC<any> = (props) => {
+export const hostGame: React.FC<any> = observer((props) => {
   const router = useRouter();
+  const HostStore = useRootStore().hostStore;
+  const WebSocketStore = useRootStore().webSocketStore;
   const [joinCount, setJoinCount] = useState(0);
   const roomID= router.query.id;
+  
+  useLifecycles(
+    () => {
+      WebSocketStore.connect();
+      // registers
+    },
+    () => {
+      // unregister
+      WebSocketStore.socket.off('recieve_message');
+      // shutdown
+      WebSocketStore.close();
+    }
+  );
+ 
+  const sendStart = () => {
+    WebSocketStore.socket.emit('send_start', {
+        chatRoomId: roomID,
+      });
+    router.push(`/host/${roomID}/game`)
+  };
+
+
   // Render
     return (
       <DefaultLayout>
@@ -29,7 +55,7 @@ export const hostGame: React.FC<any> = (props) => {
               {joinCount}
          </Row>
          <Row  className="justify-content-center mb-4">
-            <button type="button" className="btn btn-primary" onClick ={() => {router.push(`/host/${roomID}/game`)}}>
+            <button type="button" className="btn btn-primary" onClick ={sendStart}>
                   Start
             </button>
          </Row>     
@@ -37,7 +63,7 @@ export const hostGame: React.FC<any> = (props) => {
       
       </DefaultLayout>
     );
-  };
+  });
   
 
   

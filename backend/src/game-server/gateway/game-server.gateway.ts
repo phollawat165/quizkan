@@ -7,6 +7,8 @@ import {
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
+    MessageBody,
+    ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameServerService } from '../game-server.service';
@@ -49,6 +51,43 @@ export class GameServerGateway
     handleMessage(client: Socket, payload: any): string {
         return 'Hello world!';
     }
+
+    @SubscribeMessage('send_start')
+    async listenForStart(
+        @MessageBody() content,
+        @ConnectedSocket() socket: Socket,
+      ) {
+        // const sender = await this.userService.findById(1);
+        this.server.sockets.emit("recieve_start", {
+          id: content.roomID
+        });
+      }
+
+    @SubscribeMessage('send_number_of_choices')
+      async listenForChoice(
+          @MessageBody() content,
+          @ConnectedSocket() socket: Socket,
+        ) {
+          // const sender = await this.userService.findById(1);
+          this.server.sockets.emit("recieve_number_of_choices", {
+            id: content.roomID,
+            question: content.question,
+            choices: content.choice
+          });
+        }
+    
+    @SubscribeMessage('send_correct_choices')
+        async listenForCorrectAnswer(
+            @MessageBody() content,
+            @ConnectedSocket() socket: Socket,
+          ) {
+            // const sender = await this.userService.findById(1);
+            this.server.sockets.emit("recieve_correct_choices", {
+              id: content.roomID,
+              choices: content.choice
+            });
+          }
+  
 
     getServer(): Server {
         return this.server;
