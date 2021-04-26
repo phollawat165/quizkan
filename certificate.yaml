@@ -1,0 +1,16 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: quizkan
+spec:
+  domains:
+    - quizkan.online
+    - www.quizkan.online
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: quizkan-backend
+spec:
+  domains:
+    - api.quizkan.online
