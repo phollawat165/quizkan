@@ -32,9 +32,8 @@ export class AdminController {
     }
 
     @Post('health')
-    @Roles(Role.Admin)
     healthPing() {
-        this.agones.health();
+        if (process.env.AGONES_ENABLED === 'true') this.agones.health();
     }
 
     @Get('game-server')
@@ -45,7 +44,6 @@ export class AdminController {
     }
 
     @Get('game')
-    @Roles(Role.Admin)
     async getGame() {
         const game = this.gameServerService.getGame();
         if (!game)
@@ -119,6 +117,6 @@ export class AdminController {
     @Post('allocate')
     @Roles(Role.Admin)
     async allocate() {
-        await this.agones.allocate();
+        if (process.env.AGONES_ENABLED === 'true') await this.agones.allocate();
     }
 }
