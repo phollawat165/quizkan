@@ -23,7 +23,6 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         private moduleRef: ModuleRef,
         private authService: AuthService,
         private schedulerRegistry: SchedulerRegistry,
-        private agones: AgonesSDK,
         private playerService: PlayersService,
         private messagingService: FirebaseMessagingService,
         private gamesService: GamesService,
@@ -31,16 +30,26 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
 
     private logger: Logger = new Logger(GameServerService.name);
     private server: Server;
+    private agones: AgonesSDK = null;
     // Current game;
     private game: GameDocument = null;
     // If shutdown by user
     private finishedCalled = false;
+    private agonesEnabled = false;
 
     async onModuleInit() {
         // Get Server instance
         this.server = this.moduleRef.get(GameServerGateway).getServer();
         this.logger.log('Loaded server instance');
         // Agones
+        if (process.env.AGONES_ENABLED === 'true') {
+            this.agones = this.moduleRef.get(AgonesSDK);
+            this.agonesEnabled = true;
+            this.setupAgones();
+        }
+    }
+
+    async setupAgones() {
         await this.agones.connect();
         // Health ping
         this.schedulerRegistry.addInterval(
@@ -51,16 +60,16 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         );
         // Listen for game server chaange
         this.agones.watchGameServer((gameServer) => {
-            const annotationMap = new Map<string, string>(
-                gameServer.objectMeta.annotationsMap as any,
-            );
-            const gameId = annotationMap.get('gameId');
             // Retrieve game session info
             if (gameServer.status.state === 'Allocated') {
                 if (
                     this.game === null ||
                     this.game.state == GameState.CREATED
                 ) {
+                    const annotationMap = new Map<string, string>(
+                        gameServer.objectMeta.annotationsMap as any,
+                    );
+                    const gameId = annotationMap.get('gameId');
                     this.logger.log('Retrieving game session info');
                     this.gamesService.findOne(gameId).then((gameDoc) => {
                         // Set game document
@@ -77,62 +86,96 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         this.logger.log('Shutting down game server');
         await this.finish();
         // Agones
-        this.schedulerRegistry.deleteInterval('agones:health');
+        if (this.agonesEnabled)
+            this.schedulerRegistry.deleteInterval('agones:health');
     }
 
     async finish(requestShutdown = true) {
         if (this.finishedCalled) return;
         // Set state to finished
-        this.game.state = GameState.FINISHED;
-        await this.game.save();
+        if (this.game !== null) {
+            this.game.state = GameState.FINISHED;
+            await this.game.save();
+        }
         // Request Agones to do a shutdown process
-        if (requestShutdown) await this.agones.shutdown();
+        if (requestShutdown && this.agonesEnabled) await this.agones.shutdown();
         this.finishedCalled = true;
     }
 
     async handleLogin(client: Socket) {
-        const user = await this.authService.validateUser(
-            (client.handshake.auth as any).token,
-        );
-        // If invalid credentials
-        if (!user) {
-            client.emit('disconnectLogin', { reason: 'Incorrect credentials' });
+        if (this.game === null || this.game.state === GameState.CREATED) {
+            this.logger.log('Client disconnected: Server not ready');
+            client.emit('message', {
+                disconnected: true,
+                message: 'Server not ready',
+            });
             client.disconnect();
         } else {
-            // Store users details on the server
-            this.playerService.addPlayerRaw(client, user);
-            // Send welcome message
-            this.schedulerRegistry.addTimeout(
-                `game-server:hello:${user.uid}`,
-                setTimeout(() => {
-                    this.messagingService.sendToDevice(
-                        user.devices.map((device) => device.token),
-                        {
-                            notification: {
-                                title: 'QuizKan',
-                                body: 'Welcome to The Game ',
-                            },
-                        },
-                    );
-                }, 5000),
+            const user = await this.authService.validateUser(
+                (client.handshake.auth as any).token,
             );
-            // Send login success
-            client.emit('loginSuccess', {
-                user: user.toJSON(),
-                time: dayjs().toISOString(),
-            });
-            this.logger.log(`User ${user.uid} logged in`);
+            // If invalid credentials
+            if (!user) {
+                client.emit('message', {
+                    disconnected: true,
+                    message: 'Incorrect credentials',
+                });
+                client.disconnect();
+            } else if (this.playerService.getPlayerById(user.uid)) {
+                client.emit('message', {
+                    disconnected: true,
+                    message: 'You are already logged in from somewhere!',
+                });
+                client.disconnect();
+            } else {
+                // Store users details on the server
+                this.playerService.addPlayerRaw(client, user);
+                // Send welcome message
+                this.schedulerRegistry.addTimeout(
+                    `game-server:hello:${user.uid}`,
+                    setTimeout(() => {
+                        this.messagingService.sendToDevice(
+                            user.devices.map((device) => device.token),
+                            {
+                                notification: {
+                                    title: 'QuizKan',
+                                    body: 'Welcome to The Game ',
+                                },
+                            },
+                        );
+                    }, 5000),
+                );
+                // Send login success
+                client.emit('loginSuccess', {
+                    user: user.toJSON(),
+                    time: dayjs().toISOString(),
+                });
+                this.logger.log(`User ${user.uid} logged in`);
+            }
         }
     }
 
     async handleDisconnect(client: Socket) {
         // Remove users details on the server
+        if (this.playerService.getPlayerBySocket(client) == null) {
+            return;
+        }
         const player = this.playerService.getPlayerBySocket(client);
         this.playerService.removePlayer(player);
     }
 
     getGame() {
         return this.game;
+    }
+
+    setGame(game: GameDocument) {
+        this.game = game;
+    }
+
+    async setGameState(gameState: GameState) {
+        if (this.game === null) return;
+        this.game.state = gameState;
+        await this.game.save();
     }
 
     getLogger() {

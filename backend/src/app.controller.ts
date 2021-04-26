@@ -18,12 +18,14 @@ import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
 import dayjs from 'dayjs';
 import { TokenAuthGuard } from './auth/auth.guard';
+import { Public } from './auth/public.decorator';
 
 @Controller()
 export class AppController {
     constructor(private readonly appService: AppService) {}
 
     @Get()
+    @Public()
     getHello(): string {
         return this.appService.getHello();
     }
