@@ -16,7 +16,6 @@ import { FirebaseMessagingService } from '@aginix/nestjs-firebase-admin';
 import { GamesService } from 'src/game/games.service';
 import { GameDocument } from 'src/game/entities/game.entity';
 import { GameState } from 'src/game/game-state.enum';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GameServerService implements OnModuleInit, OnModuleDestroy {
@@ -28,7 +27,6 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         private playerService: PlayersService,
         private messagingService: FirebaseMessagingService,
         private gamesService: GamesService,
-        private configService: ConfigService,
     ) {}
 
     private logger: Logger = new Logger(GameServerService.name);
@@ -44,7 +42,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         this.server = this.moduleRef.get(GameServerGateway).getServer();
         this.logger.log('Loaded server instance');
         // Agones
-        if (this.configService.get<string>('AGONES_ENABLED') === 'true') {
+        if (process.env.AGONES_ENABLED === 'true') {
             this.agonesEnabled = true;
             this.setupAgones();
         }
