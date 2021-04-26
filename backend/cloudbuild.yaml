@@ -1,0 +1,10 @@
+steps:
+    - name: 'docker'
+      args: ['build', '-t', 'gcr.io/$PROJECT_ID/quizkan-backend', '.']
+
+# By default, all built docker images will be lost once the build is complete.
+# Rather than writing a build step to push this image, you can simply list the
+# image below and it will automatically be uploaded to Google Cloud Container
+# Registry.
+images:
+    - 'gcr.io/$PROJECT_ID/quizkan-backend'
