@@ -21,7 +21,7 @@ export class Question {
             },
         ]),
     )
-    choices: { name: string; isCorrect: boolean }[];
+    choices: { name: string; order: number; isCorrect: boolean }[];
 }
 
 export const QuestionSchema = SchemaFactory.createForClass(Question);

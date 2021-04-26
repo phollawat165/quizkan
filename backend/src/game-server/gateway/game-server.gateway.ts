@@ -1,5 +1,5 @@
 import AgonesSDK from '@google-cloud/agones-sdk';
-import { Logger } from '@nestjs/common';
+import { Logger, UseFilters } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import {
     OnGatewayConnection,
@@ -12,11 +12,13 @@ import {
     ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AllExceptionsFilter } from 'src/game/exception.filter';
 import { GameServerService } from '../game-server.service';
 
 @WebSocketGateway({
     cors: { origin: '*', methods: ['GET', 'POST'], credentials: true },
 })
+@UseFilters(AllExceptionsFilter)
 export class GameServerGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     private logger: Logger = new Logger(GameServerGateway.name);
@@ -56,42 +58,43 @@ export class GameServerGateway
         return 'Hello world!';
     }
 
-    @SubscribeMessage('send_start')
-    async listenForStart(
-        @MessageBody() content,
-        @ConnectedSocket() socket: Socket,
-      ) {
-        // const sender = await this.userService.findById(1);
-        this.server.sockets.emit("recieve_start", {
-          id: content.roomID
-        });
-      }
+    @SubscribeMessage('start')
+    async handleStart(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.startGame(player);
+    }
 
-    @SubscribeMessage('send_number_of_choices')
-      async listenForChoice(
-          @MessageBody() content,
-          @ConnectedSocket() socket: Socket,
-        ) {
-          // const sender = await this.userService.findById(1);
-          this.server.sockets.emit("recieve_number_of_choices", {
-            id: content.roomID,
-            question: content.question,
-            choices: content.choice
-          });
-        }
-    
-    @SubscribeMessage('send_correct_choices')
-        async listenForCorrectAnswer(
-            @MessageBody() content,
-            @ConnectedSocket() socket: Socket,
-          ) {
-            // const sender = await this.userService.findById(1);
-            this.server.sockets.emit("recieve_correct_choices", {
-              id: content.roomID,
-              choices: content.choice
-            });
-          }
-  
+    @SubscribeMessage('answer')
+    async handleAnswer(client: Socket, payload: any) {
+        // TODO: Set answer
+        return { status: 'OK' };
+    }
+
+    @SubscribeMessage('skip')
+    async handleSkip(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.handleSkip(player);
+    }
+
+    @SubscribeMessage('next')
+    async handleNextQuestion(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.handleNextQuestion(player);
+    }
+
+    @SubscribeMessage('end')
+    async handleEnd(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.handleEnd(player);
+    }
 
     getServer(): Server {
         return this.server;
