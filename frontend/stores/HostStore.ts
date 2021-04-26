@@ -18,6 +18,8 @@ export class HostStore {
     page: number ;
     @observable
     command: string ;
+    @observable
+    questions: any ;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
@@ -25,6 +27,7 @@ export class HostStore {
         this.question = 0;
         this.page = 0;
         this.command = null;
+        this.questions =null;
     }
 
     @action
@@ -39,6 +42,11 @@ export class HostStore {
     @action
     async UpdateCommand(c): Promise<void> {
         this.command =c;
+    };
+
+    @action
+    async UpdateQuestions(q): Promise<void> {
+        this.questions =q;
     };
 }
 

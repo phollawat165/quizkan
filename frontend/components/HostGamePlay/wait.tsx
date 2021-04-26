@@ -10,10 +10,12 @@ export const HostWait: React.FC<any> = observer((props) => {
   const router = useRouter();
   const HostStore = useRootStore().hostStore;
   const [joinCount, setJoinCount] = useState(0);
-  const roomID= router.query.id;
-  
+  const WebSocketStore = useRootStore().webSocketStore;
  
-  const sendStart = async (idx) => {
+  const sendStart = async () => {
+    WebSocketStore.socket.emit('send_start', {
+      question: HostStore.questions.question[HostStore.question].lenght
+    });
     await HostStore.UpdatePage(1);
   }
 

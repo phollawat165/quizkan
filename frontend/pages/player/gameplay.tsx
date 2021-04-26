@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar,Nav, Col, Container, Jumbotron, Row, Form, Card , NavDropdown  } from 'react-bootstrap';
-import DefaultLayout from '../../../layouts/Default';
-import QuestionFrom from '../../../components/HostGame/Form';
+import DefaultLayout from '../../layouts/Default';
+import QuestionFrom from '../../components/HostGame/Form';
 import Image from 'react-bootstrap/Image';
 import axios from 'axios';
 import Link from 'next/link';
@@ -13,11 +13,11 @@ import { firebase as firebaseClient } from 'services/firebase/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar ,faCircle, faSquare,faHeart ,faCheck} from '@fortawesome/free-solid-svg-icons';
 import style from '../../../components/HostGame/Start.module.scss';
-import HostWait from '../../../components/HostGamePlay/wait';
-import HostGame from '../../../components/HostGamePlay/game';
-import HostScore from '../../../components/HostGamePlay/score';
+import PlayerWait from '../../components/PlayerGame/wait';
+import PlayerGame from '../../components/PlayerGame/game';
+import PlayerScore from '../../components/PlayerGame/score';
 import temp from 'pages/auth/temp';
-import { useRootStore } from '../../../stores/stores';
+import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
@@ -25,37 +25,31 @@ import { useEffectOnce, useLifecycles } from 'react-use';
 
 export const HostGameplay = observer((props) => {
   const router = useRouter();
-  const HostStore = useRootStore().hostStore;
+  const PlayerStore = useRootStore().playerStore;
   const { user } = useAuth();
-  const [page,setPage] = useState(HostStore.page);
+  const [page,setPage] = useState(PlayerStore.page);
   const WebSocketStore = useRootStore().webSocketStore;
+  useEffect(() => {
+    setPage(PlayerStore.page);
+  }, [PlayerStore.page]);
 
   useEffect(() => {
-    setPage(HostStore.page);
-  }, [HostStore.page]);
-  
-  useLifecycles(
-    () => {
-      WebSocketStore.connect();
-      // registers
-    },
-    () => {
-      // unregister
-      WebSocketStore.socket.off('recieve_message');
-      // shutdown
-      WebSocketStore.close();
-    }
-  );
-
+    WebSocketStore.socket.on('recieve_start', async(payload) => {
+      if(payload.id){
+        await PlayerStore.UpdateNumberChoice(payload.question);
+        await PlayerStore.UpdatePage(1);
+      }
+    });
+  }, []);
   
   return (
     <DefaultLayout >
       <Head>
-        <title>Host Game Play</title>
+        <title>Player Game Play</title>
       </Head>
-      {page==0 && (<HostWait/> )}
-      {page==1 && (<HostGame/> )}
-      {page==2 && (<HostScore/> )}
+      {page==0 && (<PlayerWait/> )}
+      {page==1 && (<PlayerGame/> )}
+      {page==2 && (<PlayerScore/> )}
     </DefaultLayout>
     
   );

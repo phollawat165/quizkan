@@ -40,17 +40,6 @@ export const JoinModal = observer((props: any) => {
 
   const handleChangeName = (e) => {
     setName(e.target.value);
-    if(user){
-      (async () => {
-        try {
-            await user.updateProfile({
-                  displayName: name
-                });
-        } catch (err) {
-            console.error(err.message);
-        }
-      })();
-    }
   };
 
   const handleCorrect = (e) => {
@@ -60,17 +49,28 @@ export const JoinModal = observer((props: any) => {
 
   const handleClick = () => {
     if(url){
+      if(user){
+        (async () => {
+          try {
+              await user.updateProfile({
+                    displayName: name
+                  });
+          } catch (err) {
+              console.error(err.message);
+          }
+        })();
+      }
       webSocketStore.setURL(url);
       webSocketStore.init();
       webSocketStore.connect();
       if(isHost){
         webSocketStore.setHost(true);
-        router.push(`/host/${room}/gameplay`);
+        router.push(`/host/gameplay`);
       }
-      router.push(`/player/${room}/gameplay`);
+      router.push(`/player/gameplay`);
     }
     else if(room){
-      router.push(`/player/${room}/gameplay`);
+      router.push(`/player/gameplay`);
     }
   };
   return (

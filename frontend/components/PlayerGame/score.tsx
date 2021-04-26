@@ -15,6 +15,7 @@ export const  PlayerScore: React.FC<any> = observer((props) => {
   const [score,setScore]=useState(playerStore.totalScore);
   const [correct,setCorrect]=useState([]);
   const [show,setShow]=useState(false);
+  const WebSocketStore = useRootStore().webSocketStore;
 
   const tempQuiz = () =>{
     return  {
@@ -29,6 +30,27 @@ export const  PlayerScore: React.FC<any> = observer((props) => {
      ]
    };
  }
+  useEffect(() => {
+  WebSocketStore.socket.on("recieve_correct_choices", (payload) => {
+    if(payload.id){
+      setCorrect(payload.choices);
+    }
+  });
+}, []);
+
+useEffect(() => {
+  (async () => {
+    if(correct.includes(playerStore.choice)){
+      await playerStore.UpdateScore();
+    }
+    await playerStore.setTimer(0);
+    await playerStore.setChoice(null);
+    setCorrect([]);
+  })();
+}, [correct]);
+  
+
+
   const handleClick = async () => {
     if(!show){
       if(tempQuiz().choices[playerStore.choice].isCorrect){

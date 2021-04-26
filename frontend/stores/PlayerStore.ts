@@ -20,6 +20,8 @@ export class PlayerStore {
     choice: number | null;
     @observable
     page: number;
+    @observable
+    numberChoices: number;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
@@ -49,6 +51,11 @@ export class PlayerStore {
     @action
     async UpdatePage(p): Promise<void> {
         this.page =p;
+    };
+
+    @action
+    async UpdateNumberChoice(nc): Promise<void> {
+        this.numberChoices = nc;
     };
 }
 

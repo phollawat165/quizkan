@@ -20,7 +20,7 @@ export const PlayerGame = observer((props) => {
   const { user } = useAuth();
   const playerStore = useRootStore().playerStore;
 
-  const [question, setQuestion] = useState(4);
+  const [question, setQuestion] = useState(playerStore.numberChoices);
   const roomID= router.query.id;
   const colors = ["one","two","three","four"];
   const icons = [faStar ,faCircle, faSquare,faHeart];

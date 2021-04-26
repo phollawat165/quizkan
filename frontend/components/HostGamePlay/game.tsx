@@ -15,51 +15,55 @@ import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
-const tempQuiz = () =>{
-   return  {
-    id: 0,
-    question: "asadaasddddd",
-    count:3,
-    choices: [
-      {id:0,choice:"abc",isCorrect:false},
-      {id:1,choice:"bcd",isCorrect:false},
-      {id:2,choice:"cde",isCorrect:true},
-      {id:3,choice:"def",isCorrect:false},
-    ]
-  };
-}
+
    
 
 export const HostGame = observer((props) => {
   const router = useRouter();
   const HostStore = useRootStore().hostStore;
-  
+  const tempQuiz = (idx) =>{
+     return HostStore.question[idx]
+  }
   const { user } = useAuth();
   const [show,setShow]= useState(false);
   const [word,setWord]=useState("Answer");
   const quizId = router.query.id;
-  const unANS = tempQuiz();
-    for(let i=0;i<unANS.choices.length;i+=1){
+  const unANS = tempQuiz(HostStore.question);
+  const WebSocketStore = useRootStore().webSocketStore;
+
+  for(let i=0;i<unANS.choices.length;i+=1){
       unANS.choices[i].isCorrect = false;
     }
   const [question, setQuestion] = useState(unANS);
   const colors = ["one","two","three","four"];
 
   const correct = [];
-  for(let i=0;i<tempQuiz().choices.length;i+=1){
-    if(tempQuiz().choices[i].isCorrect){
+  for(let i=0;i<tempQuiz(HostStore.question).choices.length;i+=1){
+    if(tempQuiz(HostStore.question).choices[i].isCorrect){
       correct.push(i);
     }
+  }
+  
+  
+ 
+  const sendStart = async () => {
+    WebSocketStore.socket.emit('send_start', {
+      question: HostStore.questions.question[HostStore.question].lenght
+    });
+    await HostStore.UpdatePage(1);
   }
 
   const handleClick = async () => {
     if(!show){
-        const ANS = tempQuiz();
+        const ANS = tempQuiz(HostStore.question);
         setQuestion(ANS);
         setShow(true);
         setWord("next");
+        WebSocketStore.socket.emit('send_correct_choices', {
+          question: correct
+        });
     }
-    else if(HostStore.question>9){
+    else if(HostStore.question>=HostStore.questions.question.lenght-1){
       await HostStore.UpdatePage(2);
     }
     else{
