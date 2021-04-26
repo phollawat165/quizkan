@@ -1,5 +1,5 @@
 import AgonesSDK from '@google-cloud/agones-sdk';
-import { Logger } from '@nestjs/common';
+import { Logger, UseFilters } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import {
     OnGatewayConnection,
@@ -10,11 +10,13 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AllExceptionsFilter } from 'src/game/exception.filter';
 import { GameServerService } from '../game-server.service';
 
 @WebSocketGateway({
     cors: { origin: '*', methods: ['GET', 'POST'], credentials: true },
 })
+@UseFilters(AllExceptionsFilter)
 export class GameServerGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     private logger: Logger = new Logger(GameServerGateway.name);
@@ -52,6 +54,44 @@ export class GameServerGateway
     @SubscribeMessage('message')
     handleMessage(client: Socket, payload: any): string {
         return 'Hello world!';
+    }
+
+    @SubscribeMessage('start')
+    async handleStart(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.startGame(player);
+    }
+
+    @SubscribeMessage('answer')
+    async handleAnswer(client: Socket, payload: any) {
+        // TODO: Set answer
+        return { status: 'OK' };
+    }
+
+    @SubscribeMessage('skip')
+    async handleSkip(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.handleSkip(player);
+    }
+
+    @SubscribeMessage('next')
+    async handleNextQuestion(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.handleNextQuestion(player);
+    }
+
+    @SubscribeMessage('end')
+    async handleEnd(client: Socket, payload: any) {
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        return this.gameServerService.handleEnd(player);
     }
 
     getServer(): Server {
