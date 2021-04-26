@@ -21,7 +21,8 @@ const NativeInput = ({ label, value, onChange, onBlur, onFocus }) => (
 export const JoinModal = (props) => {
 
   const router = useRouter();
-  const [room, setRoom] = useState('');
+  const [room, setRoom] = useState(null);
+  const [url, setUrl] = useState(null);
   const [name, setName] = useState(null);
   const { user } = useAuth();
   
@@ -43,6 +44,14 @@ export const JoinModal = (props) => {
             console.error(err.message);
         }
       })();
+    }
+  };
+  const handleClick = () => {
+    if(url){
+      router.push(`/player/${room}/wait`);
+    }
+    else if(room){
+      router.push(`/player/${room}/wait`);
     }
   };
   return (
@@ -87,7 +96,18 @@ export const JoinModal = (props) => {
                         onChange={(e) => setRoom(e.target.value)}
                     />
                 </Form.Group>
-                <button type="button" className="btn btn-primary" onClick={() => {router.push(`/player/${room}/wait`)}}>
+                <Form.Group>
+                    <Form.Label className={styles.label}>
+                        Room URL
+                    </Form.Label>
+                    <Form.Control
+                        className="form-control"
+                        type="text" 
+                        placeholder="Type here"
+                        onChange={(e) => setUrl(e.target.value)}
+                    />
+                </Form.Group>
+                <button type="button" className="btn btn-primary" onClick={handleClick}>
                       Join Room
                 </button>
 

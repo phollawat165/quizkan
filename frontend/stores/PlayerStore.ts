@@ -18,6 +18,8 @@ export class PlayerStore {
     timer: number ;
     @observable
     choice: number | null;
+    @observable
+    page: number;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
@@ -25,6 +27,7 @@ export class PlayerStore {
         this.timer = 0;
         this.totalScore = 0;
         this.choice = null;
+        this.page = 0;
     }
 
     @action
@@ -41,6 +44,11 @@ export class PlayerStore {
     @action
     async UpdateScore(): Promise<void> {
         this.totalScore += this.timer;
+    };
+
+    @action
+    async UpdatePage(p): Promise<void> {
+        this.page =p;
     };
 }
 
