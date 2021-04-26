@@ -27,7 +27,7 @@ enableStaticRendering(typeof window === 'undefined');
 // Axios inject host
 axios.defaults.baseURL =
     process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8000';
-axios.defaults.withCredentials = true;
+//axios.defaults.withCredentials = true;
 
 // DayJS plugin
 dayjs.extend(relativeTime);
@@ -46,6 +46,9 @@ function MyApp({ Component, pageProps }) {
     // Initialize Firebase
     useEffectOnce(() => {
         import('../services/firebase/client');
+        if (typeof window !== undefined) {
+            (window as any).axios = axios;
+        }
     });
     return (
         <RootStoreProvider hydrationData={pageProps.hydrationData}>

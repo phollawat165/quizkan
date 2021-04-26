@@ -52,7 +52,6 @@ export class AdminController {
     }
 
     @Post('game')
-    @Roles(Role.Admin)
     async setGame(@Body() body: any, @Request() req: Express.Request) {
         if (!body) throw new BadRequestException();
         if (this.gameServerService.getGame()) {

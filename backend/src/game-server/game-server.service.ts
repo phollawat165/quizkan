@@ -24,6 +24,7 @@ import { UserDocument } from 'src/users/entities/user.entity';
 import { messaging } from 'firebase-admin';
 import { Question, QuestionDocument } from 'src/game/entities/question.entity';
 import _ from 'lodash';
+import { Document } from 'mongoose';
 
 @Injectable()
 export class GameServerService implements OnModuleInit, OnModuleDestroy {
@@ -357,7 +358,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
             this.currentQuestion
         ] as QuestionDocument).toJSON();
         question.choices = question.choices.map((choice) => {
-            return { name: choice.name, order: choice.order };
+            return { name: choice.name, order: choice.order, isCorrect: false };
         }) as any;
         this.server.sockets.emit('setQuestion', question);
     }
@@ -398,13 +399,16 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         return new Promise<void>((res, rej) => {
             setTimeout(() => {
                 if (user.devices && user.devices.length > 0) {
+                    const tokens = [];
+                    for (const device of user.devices) {
+                        if (!tokens.includes(device.token)) {
+                            tokens.push(device.token);
+                        }
+                    }
                     try {
-                        this.messagingService.sendToDevice(
-                            user.devices.map((device) => device.token),
-                            {
-                                notification: message,
-                            },
-                        );
+                        this.messagingService.sendToDevice(tokens, {
+                            notification: message,
+                        });
                         res();
                     } catch (err) {
                         rej(err);

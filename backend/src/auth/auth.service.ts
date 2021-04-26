@@ -1,5 +1,6 @@
 import { FirebaseAuthenticationService } from '@aginix/nestjs-firebase-admin';
 import { Injectable } from '@nestjs/common';
+import { UpdateQuery } from 'mongoose';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
@@ -17,15 +18,30 @@ export class AuthService {
      */
     async validateUser(token: string): Promise<UserDocument | null> {
         try {
-            const userRecord = await this.firebaseAuthService.verifyIdToken(
+            const userModel = this.usersService.getModel();
+            const decodedToken = await this.firebaseAuthService.verifyIdToken(
                 token,
             );
-            let user = await this.usersService.findOne(userRecord.uid);
-            if (!user) {
-                user = await this.usersService.create({ uid: userRecord.uid });
-            }
+            let user = await this.usersService.findOne(decodedToken.uid);
+            if (user) return user;
+            const userRecord = await this.firebaseAuthService.getUser(
+                decodedToken.uid,
+            );
+            const update: UpdateQuery<UserDocument> = {
+                displayName: userRecord.displayName || 'Player',
+                email: userRecord.email,
+                isAnonymous: userRecord.email == null,
+            };
+            user = await userModel
+                .findOneAndUpdate({ uid: userRecord.uid }, update, {
+                    upsert: true,
+                })
+                .exec();
             return user;
         } catch (err) {
+            if (err.code)
+                console.error('Firebase Error:', err.code, err.message);
+            else console.error(err.stack);
             return null;
         }
     }

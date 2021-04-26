@@ -1,4 +1,4 @@
-import { Col, Row ,Container} from 'react-bootstrap';
+import { Col, Row, Container } from 'react-bootstrap';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -6,18 +6,18 @@ import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
-export const  PlayerScore: React.FC<any> = observer((props) => {
-  const router = useRouter();
-  const playerStore = useRootStore().playerStore;
-  const [joinCount, setJoinCount] = useState(0);
-  const [roomID,setRoomID] = useState(router.query.id);
-  const [start,serStart]=useState(false);
-  const [score,setScore]=useState(playerStore.totalScore);
-  const [correct,setCorrect]=useState([]);
-  const [show,setShow]=useState(false);
-  const WebSocketStore = useRootStore().webSocketStore;
+export const PlayerScore: React.FC<any> = observer((props) => {
+    const router = useRouter();
+    const playerStore = useRootStore().playerStore;
+    const [joinCount, setJoinCount] = useState(0);
+    const [roomID, setRoomID] = useState(router.query.id);
+    const [start, serStart] = useState(false);
+    const [score, setScore] = useState(playerStore.totalScore);
+    const [correct, setCorrect] = useState(null);
+    const [show, setShow] = useState(false);
+    const WebSocketStore = useRootStore().webSocketStore;
 
-  const tempQuiz = () =>{
+    /*const tempQuiz = () =>{
     return  {
      id: 0,
      question: "asadaasddddd",
@@ -29,64 +29,40 @@ export const  PlayerScore: React.FC<any> = observer((props) => {
        {id:3,choice:"def",isCorrect:false},
      ]
    };
- }
-  useEffect(() => {
-  WebSocketStore.socket.on("recieve_correct_choices", (payload) => {
-    if(payload.id){
-      setCorrect(payload.choices);
-    }
-  });
-}, []);
+ }*/
+    useEffect(() => {
+        if (playerStore.questionState) {
+            (async () => {
+                setCorrect(null);
+                await playerStore.UpdatePage(1);
+            })();
+        }
+    }, [playerStore.questionState]);
 
-useEffect(() => {
-  (async () => {
-    if(correct.includes(playerStore.choice)){
-      await playerStore.UpdateScore();
-    }
-    await playerStore.setTimer(0);
-    await playerStore.setChoice(null);
-    setCorrect([]);
-  })();
-}, [correct]);
-  
+    useEffect(() => {
+        (async () => {
+            if (playerStore.answerChoices[playerStore.choice].isCorrect) {
+                await playerStore.UpdateScore();
+                setCorrect('Your anwser is correct');
+            } else {
+                setCorrect('Your anwser is worng');
+            }
+            await playerStore.setTimer(0);
+            await playerStore.setChoice(null);
+        })();
+    }, [playerStore.answerChoices]);
 
-
-  const handleClick = async () => {
-    if(!show){
-      if(tempQuiz().choices[playerStore.choice].isCorrect){
-        await playerStore.UpdateScore();
-      }
-      await playerStore.setTimer(0);
-      await playerStore.setChoice(null);
-      setShow(true);
-    }
-    else{
-      await playerStore.UpdatePage(1);
-      setShow(false);
-    }
-    
-  }
-
-  // Render
+    // Render
     return (
-
-    
         <Container className="mt-4">
-          <Row className="justify-content-center text-center mb-4">
-              Your Score is {playerStore.totalScore} {playerStore.choice}
-         </Row>
-         <Row  className="justify-content-center mb-4">
-            <button type="button" className="btn btn-primary" onClick ={handleClick}>
-                  check
-            </button>
-         </Row>     
+            <Row className="justify-content-center text-center mb-4">
+                Your Score is {playerStore.totalScore}
+            </Row>
+            <Row className="justify-content-center text-center mb-4">
+                {correct}
+            </Row>
         </Container>
-      
-
     );
-  });
-  
+});
 
-  
-  export default PlayerScore;
-  
+export default PlayerScore;

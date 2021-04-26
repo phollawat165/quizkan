@@ -9,12 +9,15 @@ import {
     UseGuards,
     Request,
     NotFoundException,
+    ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { UpdateUserDto } from '../../users/dto/update-user.dto';
 import { TokenAuthGuard } from 'src/auth/auth.guard';
 import { UserDocument } from 'src/users/entities/user.entity';
+import { Role } from 'src/auth/role/role.enum';
+import { Roles } from 'src/auth/role/roles.decorator';
 
 @Controller('users')
 @UseGuards(TokenAuthGuard)
@@ -27,12 +30,13 @@ export class UsersController {
     }
 
     @Get()
+    @Roles(Role.Admin)
     async findAll() {
         return this.usersService.findAll();
     }
 
     @Post('/sync')
-    async syncDevicesToken(@Body() body: any, @Request() req: Express.Request) {
+    async sync(@Body() body: any, @Request() req: Express.Request) {
         const token = body.token;
         const name = body.name;
         const user = req.user as UserDocument;
@@ -48,9 +52,11 @@ export class UsersController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id') id: string, @Request() req: Express.Request) {
         const user = await this.usersService.findOne(id);
         if (!user) throw new NotFoundException();
+        if ((req.user as UserDocument).uid != user.uid)
+            throw new ForbiddenException();
         return user;
     }
 
@@ -58,16 +64,22 @@ export class UsersController {
     async update(
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
+        @Request() req: Express.Request,
     ) {
-        const user = await this.usersService.update(id, updateUserDto);
+        let user = await this.usersService.findOne(id);
         if (!user) throw new NotFoundException();
+        if ((req.user as UserDocument).uid != user.uid)
+            throw new ForbiddenException();
+        user = await this.usersService.update(id, updateUserDto);
         return user;
     }
 
     @Delete(':id')
-    async remove(@Param('id') id: string) {
+    async remove(@Param('id') id: string, @Request() req: Express.Request) {
         const user = await this.usersService.findOne(id);
         if (!user) throw new NotFoundException();
+        if ((req.user as UserDocument).uid != user.uid)
+            throw new ForbiddenException();
         await this.usersService.remove(id);
         return;
     }

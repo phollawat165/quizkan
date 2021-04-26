@@ -13,41 +13,51 @@ export class HostStore {
     @observable
     id: number | null;
     @observable
-    question: number ;
+    question: number;
     @observable
-    page: number ;
+    page: number;
     @observable
-    command: string ;
+    command: string;
     @observable
-    questions: any ;
+    questionChoices: any;
+    @observable
+    answerChoices: any;
+    @observable
+    questionState: boolean;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
         this.rootStore = rootStore;
-        this.question = 0;
         this.page = 0;
         this.command = null;
-        this.questions =null;
+        this.questionChoices = null;
+        this.answerChoices = null;
+        this.questionState = null;
+    }
+    @action
+    async UpdatePage(p): Promise<void> {
+        this.page = p;
     }
 
     @action
-    async UpdateQuestion(): Promise<void> {
-        this.question +=1;
-    };
-    @action
-    async UpdatePage(p): Promise<void> {
-        this.page =p;
-    };
-
-    @action
     async UpdateCommand(c): Promise<void> {
-        this.command =c;
-    };
+        this.command = c;
+    }
 
     @action
-    async UpdateQuestions(q): Promise<void> {
-        this.questions =q;
-    };
+    async setQuestionChoices(questionChoices): Promise<void> {
+        this.questionChoices = questionChoices;
+    }
+
+    @action
+    async setAnswerChoices(answerChoices): Promise<void> {
+        this.answerChoices = answerChoices;
+    }
+
+    @action
+    async setQuestionState(questionState): Promise<void> {
+        this.questionState = questionState;
+    }
 }
 
 export default HostStore;

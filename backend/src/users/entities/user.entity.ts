@@ -16,6 +16,18 @@ export class User {
 
     @Prop([DeviceSchema])
     devices: Device[];
+
+    @Prop({ default: 'Player', index: true })
+    displayName: string;
+
+    @Prop({ default: null, index: true, sparse: true })
+    email: string;
+
+    @Prop({ type: Object, default: null })
+    firebaseUser: any;
+
+    @Prop({ default: false })
+    isAnonymous: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
