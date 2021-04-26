@@ -83,8 +83,10 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
     async finish(requestShutdown = true) {
         if (this.finishedCalled) return;
         // Set state to finished
-        this.game.state = GameState.FINISHED;
-        await this.game.save();
+        if (this.game !== null) {
+            this.game.state = GameState.FINISHED;
+            await this.game.save();
+        }
         // Request Agones to do a shutdown process
         if (requestShutdown) await this.agones.shutdown();
         this.finishedCalled = true;
