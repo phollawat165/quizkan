@@ -20,7 +20,7 @@ export class GameServerModule {
                       GameServerService,
                       {
                           provide: AgonesSDK,
-                          useValue: new AgonesSDK(),
+                          useClass: AgonesSDK,
                       },
                       PlayersService,
                   ],

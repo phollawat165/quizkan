@@ -1,5 +1,6 @@
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { Logger } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import {
     OnGatewayConnection,
     OnGatewayDisconnect,
@@ -23,26 +24,29 @@ export class GameServerGateway
     constructor(
         private gameServerService: GameServerService,
         private agones: AgonesSDK,
+        private moduleRef: ModuleRef,
     ) {}
 
     afterInit(server: Server) {
         this.logger.log('Server running in GAME-SERVER mode');
         this.logger.log('WebSocket Gateway initialized');
-        this.agones.connect().then(() => {
-            this.agones.ready().then(() => {
-                this.logger.log('Server is now ready for the game.');
+        if (process.env.AGONES_ENABLED === 'true') {
+            this.agones.connect().then(() => {
+                this.agones.ready().then(() => {
+                    this.logger.log('Server is now ready for the game.');
+                });
             });
-        });
+        }
     }
 
     async handleConnection(client: Socket, ...args: any[]) {
         this.logger.log('Client connected');
-        this.gameServerService.handleLogin(client);
+        await this.gameServerService.handleLogin(client);
     }
 
     async handleDisconnect(client: Socket) {
-        this.gameServerService.handleDisconnect(client);
         this.logger.log('Client disconnected');
+        await this.gameServerService.handleDisconnect(client);
     }
 
     @SubscribeMessage('message')
