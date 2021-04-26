@@ -11,6 +11,7 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { AuthProvider } from 'hooks/auth';
 import { useEffectOnce } from 'react-use';
+import { RootStoreProvider } from '../stores/stores';
 
 // FontAwesome
 // The following import prevents a Font Awesome icon server-side rendering bug,
@@ -47,19 +48,21 @@ function MyApp({ Component, pageProps }) {
         import('../services/firebase/client');
     });
     return (
-        <SWRConfig value={swrConfig}>
-            <AuthProvider>
-                <Head>
-                    <meta charSet="utf-8" />
-                    <meta
-                        name="viewport"
-                        content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
-                    />
-                    <link rel="manifest" href="/manifest.json" />
-                </Head>
-                <Component {...pageProps} />
-            </AuthProvider>
-        </SWRConfig>
+        <RootStoreProvider hydrationData={pageProps.hydrationData}>
+            <SWRConfig value={swrConfig}>
+                <AuthProvider>
+                    <Head>
+                        <meta charSet="utf-8" />
+                        <meta
+                            name="viewport"
+                            content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
+                        />
+                        <link rel="manifest" href="/manifest.json" />
+                    </Head>
+                    <Component {...pageProps} />
+                </AuthProvider>
+            </SWRConfig>
+        </RootStoreProvider>
     );
 }
 

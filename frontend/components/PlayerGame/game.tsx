@@ -1,60 +1,39 @@
 import Head from 'next/head';
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar,Nav, Col, Container, Jumbotron, Row, Form, Card , NavDropdown  } from 'react-bootstrap';
-import DefaultLayout from '../../../layouts/Default';
-import QuestionFrom from '../../../components/HostGame/Form';
 import Image from 'react-bootstrap/Image';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import styles from '../../components/Navigation/NavBar.module.scss';
 import { useAuth } from 'hooks/auth';
 import { firebase as firebaseClient } from 'services/firebase/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar ,faCircle, faSquare,faHeart ,faCheck} from '@fortawesome/free-solid-svg-icons';
-import style from '../../../components/Home/Home.module.scss';
+import style from './Home.module.scss';
 import temp from 'pages/auth/temp';
-import { useRootStore } from '../../../stores/stores';
+import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
-export const PlayerGameplay = observer((props) => {
+export const PlayerGame = observer((props) => {
   const router = useRouter();
   const { user } = useAuth();
   const playerStore = useRootStore().playerStore;
-  const WebSocketStore = useRootStore().webSocketStore;
-  const [question, setQuestion] = useState(4);
+
+  const [question, setQuestion] = useState(playerStore.numberChoices);
   const roomID= router.query.id;
   const colors = ["one","two","three","four"];
   const icons = [faStar ,faCircle, faSquare,faHeart];
   const [score,setScore]=useState(playerStore.totalScore);
   const [currentTime,serCurrentTime]=useState(123);
 
-  useLifecycles(
-    () => {
-      WebSocketStore.connect();
-      // registers
-    },
-    () => {
-      // unregister
-      WebSocketStore.socket.off('recieve_message');
-      // shutdown
-      WebSocketStore.close();
-    }
-  );
-  useEffect(() => {
-    WebSocketStore.socket.on("recieve_number_of_choices", (payload) => {
-      if(payload.id==roomID){
-        setQuestion(payload.choices);
-      }
-    });
-  }, []);
+ 
 
 
   const handleClick = async (idx) => {
     await playerStore.setTimer(currentTime);
     await playerStore.setChoice(idx);
-    router.push(`/player/${roomID}/score`);
+    await playerStore.UpdatePage(2);
   }
   const forms =[];
   for (let i = 0; i < question; i += 2){
@@ -91,10 +70,7 @@ export const PlayerGameplay = observer((props) => {
   }
 
   return (
-    <DefaultLayout >
-      <Head>
-        <title>Player Game Play</title>
-      </Head>
+    
      
       <Container className="mt-4">
         <Row className ='mb-3'>Your Score : {score}</Row>
@@ -102,11 +78,11 @@ export const PlayerGameplay = observer((props) => {
             {forms}
         </Container>
       </Container>
-    </DefaultLayout>
+
     
   );
 });
 
 
 
-export default PlayerGameplay;
+export default PlayerGame;

@@ -1,18 +1,14 @@
 import Head from 'next/head';
 import React, { useState, useEffect, useRef } from 'react';
 import { Navbar,Nav, Col, Container, Jumbotron, Row, Form, Card , NavDropdown  } from 'react-bootstrap';
-import DefaultLayout from '../../../layouts/Default';
-import QuestionFrom from '../../../components/HostGame/Form';
-import Image from 'react-bootstrap/Image';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import styles from '../../components/Navigation/NavBar.module.scss';
 import { useAuth } from 'hooks/auth';
 import { firebase as firebaseClient } from 'services/firebase/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCrown ,faCircle, faSquare,faHeart ,faCheck} from '@fortawesome/free-solid-svg-icons';
-import { useRootStore } from '../../../stores/stores';
+import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
@@ -29,7 +25,6 @@ const rankTemp = [{name: "ben", score :"1"},
 export const HostScore = observer((props) => {
   const router = useRouter();
   const HostStore = useRootStore().hostStore;
-  const WebSocketStore = useRootStore().webSocketStore;
   const { user } = useAuth();
   const roomID= router.query.id;
   rankTemp.sort(function(a, b) {
@@ -37,30 +32,10 @@ export const HostScore = observer((props) => {
   });
   const [rank, setRank] = useState(rankTemp);
   const colors = ["gold","silver","grey"];
-  useLifecycles(
-    () => {
-      WebSocketStore.connect();
-      // registers
-    },
-    () => {
-      // unregister
-      WebSocketStore.socket.off('recieve_message');
-      // shutdown
-      WebSocketStore.close();
-    }
-  );
  
-  const sendStart = () => {
-    WebSocketStore.socket.emit('send_start', {
-        chatRoomId: roomID,
-      });
-    router.push(`/host/${roomID}/game`)
-  };
 
   const handleClick = async () => {
-    await HostStore.UpdateQuestion();
-    sendStart();
-    router.push(`/host/${roomID}/game`)
+    await HostStore.UpdatePage(0);
   }
   
   const rows =[];
@@ -95,11 +70,7 @@ export const HostScore = observer((props) => {
   
 
   return (
-    <DefaultLayout>
-      <Head>
-        <title>Player Score</title>
-      </Head>
-     
+  
       <Container className="mt-4">
         <Row className="justify-content-center text-center mb-4">
             TOP PLAYER
@@ -111,7 +82,6 @@ export const HostScore = observer((props) => {
             </button>
          </Row>     
       </Container>
-    </DefaultLayout>
     
   );
 });

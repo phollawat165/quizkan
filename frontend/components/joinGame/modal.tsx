@@ -5,6 +5,9 @@ import Link from 'next/link';
 import axios from 'axios';
 import styles from './modal.module.scss';
 import { useAuth } from 'hooks/auth';
+import { useRootStore } from '../../stores/stores';
+import { observer } from 'mobx-react-lite';
+import { firebase as firebaseClient } from 'services/firebase/client';
 
 const NativeInput = ({ label, value, onChange, onBlur, onFocus }) => (
     <label className="k-form-field">
@@ -18,12 +21,17 @@ const NativeInput = ({ label, value, onChange, onBlur, onFocus }) => (
       />
     </label>
   );
-export const JoinModal = (props) => {
+export const JoinModal = observer((props: any) => {
 
   const router = useRouter();
-  const [room, setRoom] = useState('');
+  const [room, setRoom] = useState(null);
+  const [url, setUrl] = useState(null);
   const [name, setName] = useState(null);
+  const [isHost, setIsHost] = useState(false);
   const { user } = useAuth();
+  const postStore = useRootStore().hostStore;
+  const playerStore = useRootStore().playerStore;
+  const webSocketStore = useRootStore().webSocketStore;
   
   useEffect(() => {
     if(user){
@@ -33,16 +41,49 @@ export const JoinModal = (props) => {
 
   const handleChangeName = (e) => {
     setName(e.target.value);
-    if(user){
-      (async () => {
-        try {
-            await user.updateProfile({
-                  displayName: name
-                });
-        } catch (err) {
-            console.error(err.message);
-        }
-      })();
+  };
+
+  const handleCorrect = (e) => {
+    const result = e.target.checked;
+    setIsHost(result);
+  };
+
+  const handleClick = () => {
+    if(url){
+      if(user){
+        (async () => {
+          try {
+              await user.updateProfile({
+                    displayName: name
+                  });
+          } catch (err) {
+              console.error(err.message);
+          }
+        })();
+      }
+      else{
+        (async () => {
+          
+          try {
+              await firebaseClient
+                  .auth()
+                  .signInAnonymously;
+          } catch (err) {
+              console.error(err.message);
+          }
+        })();
+      }
+      webSocketStore.setURL(url);
+      webSocketStore.init();
+      webSocketStore.connect();
+      if(isHost){
+        webSocketStore.setHost(true);
+        router.push(`/host/gameplay`);
+      }
+      router.push(`/player/gameplay`);
+    }
+    else if(room){
+      router.push(`/player/gameplay`);
     }
   };
   return (
@@ -87,7 +128,26 @@ export const JoinModal = (props) => {
                         onChange={(e) => setRoom(e.target.value)}
                     />
                 </Form.Group>
-                <button type="button" className="btn btn-primary" onClick={() => {router.push(`/player/${room}/wait`)}}>
+                <Form.Group>
+                    <Form.Label className={styles.label}>
+                        Room URL
+                    </Form.Label>
+                    <Form.Control
+                        className="form-control"
+                        type="text" 
+                        placeholder="Type here"
+                        onChange={(e) => setUrl(e.target.value)}
+                    />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Control
+                      className="form-control"
+                      type="checkbox"
+                      defaultChecked={isHost}
+                      onChange={(e) => {handleCorrect(e)}}
+                  />
+                </Form.Group>
+                <button type="button" className="btn btn-primary" onClick={handleClick}>
                       Join Room
                 </button>
 
@@ -98,6 +158,6 @@ export const JoinModal = (props) => {
       </Modal.Body>
     </Modal>
   );
-};
+});
 
 export default JoinModal;

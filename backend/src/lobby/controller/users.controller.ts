@@ -7,8 +7,8 @@ import {
     Param,
     Delete,
     UseGuards,
-    NotFoundException,
     Request,
+    NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { CreateUserDto } from '../../users/dto/create-user.dto';

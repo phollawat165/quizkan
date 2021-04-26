@@ -115,12 +115,6 @@ const tempQuiz ={id: 0,
           </Head>
           
           <Container className="mt-2">
-            <Row>
-                <button type="button" className="btn btn-primary" onClick={handleAddQuestion}>
-                      Add Question
-                </button>
-            </Row>
-    
             {rows}
           </Container>
           <Navbar
@@ -128,19 +122,17 @@ const tempQuiz ={id: 0,
           variant="light"
           expand="md"
           fixed="bottom"
-          className="d-md-none"
+          
           style={{ height: '2.5rem' }}>
           <Nav.Link
             className="justify-content-center mx-auto position-relative"
             style={{ bottom: '2.75rem' }}>
-            <img
-              role="button"
-              src="/images/search.svg"
-              width="100px"
-              height="100px"
-              className="stretched-link mb-10"
-              onClick={handleAddQuestion}
-            />
+             <button type="button" className="btn btn-primary mr-2" style={{ width: '150px'}} onClick={handleAddQuestion}>
+                      Add Question
+                </button>
+             <button type="button" className="btn btn-primary ml-2 "style={{ width: '100px'}} >
+                      Save
+                </button>
           </Nav.Link>
         </Navbar>
         </DefaultLayout>
