@@ -16,6 +16,7 @@ import { FirebaseMessagingService } from '@aginix/nestjs-firebase-admin';
 import { GamesService } from 'src/game/games.service';
 import { GameDocument } from 'src/game/entities/game.entity';
 import { GameState } from 'src/game/game-state.enum';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class GameServerService implements OnModuleInit, OnModuleDestroy {
@@ -27,6 +28,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         private playerService: PlayersService,
         private messagingService: FirebaseMessagingService,
         private gamesService: GamesService,
+        private configService: ConfigService,
     ) {}
 
     private logger: Logger = new Logger(GameServerService.name);
@@ -35,12 +37,20 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
     private game: GameDocument = null;
     // If shutdown by user
     private finishedCalled = false;
+    private agonesEnabled = false;
 
     async onModuleInit() {
         // Get Server instance
         this.server = this.moduleRef.get(GameServerGateway).getServer();
         this.logger.log('Loaded server instance');
         // Agones
+        if (this.configService.get<string>('AGONES_ENABLED') === 'true') {
+            this.agonesEnabled = true;
+            this.setupAgones();
+        }
+    }
+
+    async setupAgones() {
         await this.agones.connect();
         // Health ping
         this.schedulerRegistry.addInterval(
@@ -77,7 +87,8 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         this.logger.log('Shutting down game server');
         await this.finish();
         // Agones
-        this.schedulerRegistry.deleteInterval('agones:health');
+        if (this.agonesEnabled)
+            this.schedulerRegistry.deleteInterval('agones:health');
     }
 
     async finish(requestShutdown = true) {
@@ -88,7 +99,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
             await this.game.save();
         }
         // Request Agones to do a shutdown process
-        if (requestShutdown) await this.agones.shutdown();
+        if (requestShutdown && this.agonesEnabled) await this.agones.shutdown();
         this.finishedCalled = true;
     }
 
