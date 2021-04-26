@@ -8,11 +8,13 @@ import {
     Delete,
     UseGuards,
     NotFoundException,
+    Request,
 } from '@nestjs/common';
 import { UsersService } from '../../users/users.service';
 import { CreateUserDto } from '../../users/dto/create-user.dto';
 import { UpdateUserDto } from '../../users/dto/update-user.dto';
 import { TokenAuthGuard } from 'src/auth/auth.guard';
+import { UserDocument } from 'src/users/entities/user.entity';
 
 @Controller('users')
 @UseGuards(TokenAuthGuard)
@@ -27,6 +29,22 @@ export class UsersController {
     @Get()
     async findAll() {
         return this.usersService.findAll();
+    }
+
+    @Post('/sync')
+    async syncDevicesToken(@Body() body: any, @Request() req: Express.Request) {
+        const token = body.token;
+        const name = body.name;
+        const user = req.user as UserDocument;
+        await user.populate('devices').execPopulate();
+        const tokens = [];
+        for (const device of user.devices) {
+            tokens.push(device.token);
+        }
+        if (!tokens.includes(token)) {
+            user.devices.push({ name: name, token: token });
+        }
+        await user.save();
     }
 
     @Get(':id')
