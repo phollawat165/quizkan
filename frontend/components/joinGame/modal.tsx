@@ -7,6 +7,7 @@ import styles from './modal.module.scss';
 import { useAuth } from 'hooks/auth';
 import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
+import { firebase as firebaseClient } from 'services/firebase/client';
 
 const NativeInput = ({ label, value, onChange, onBlur, onFocus }) => (
     <label className="k-form-field">
@@ -55,6 +56,18 @@ export const JoinModal = observer((props: any) => {
               await user.updateProfile({
                     displayName: name
                   });
+          } catch (err) {
+              console.error(err.message);
+          }
+        })();
+      }
+      else{
+        (async () => {
+          
+          try {
+              await firebaseClient
+                  .auth()
+                  .signInAnonymously;
           } catch (err) {
               console.error(err.message);
           }

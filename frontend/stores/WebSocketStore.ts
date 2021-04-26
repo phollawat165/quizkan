@@ -35,6 +35,9 @@ export class WebSocketStore {
   @observable
   host: boolean;
 
+  @observable
+  token: string;
+
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
     this.socket = null;
@@ -43,7 +46,8 @@ export class WebSocketStore {
     const urlObject = new URL(process.env.NEXT_PUBLIC_API_ENDPOINT);
     this.url = `ws://${urlObject.host}`;
     this.opts = {
-      withCredentials: true,
+      auth: {token: ''},
+      transports: ['websocket']
     };
     this.messages = [];
     this.host = false;
@@ -55,7 +59,7 @@ export class WebSocketStore {
 
   @action
   init(): void {
-    this.socket = io(this.url, this.opts);
+    this.socket = io(this.url, {...this.opts, auth: {token: this.token}} );
     this.socket.on('connect', () => {
       this.setConnected(true);
     });
@@ -72,6 +76,11 @@ export class WebSocketStore {
   @action
   setURL(url): void {
     this.url = url;
+  }
+
+  @action
+  setToken(token): void {
+    this.token = token;
   }
 
   @action

@@ -16,7 +16,7 @@ import { AllExceptionsFilter } from 'src/game/exception.filter';
 import { GameServerService } from '../game-server.service';
 
 @WebSocketGateway({
-    cors: { origin: '*', methods: ['GET', 'POST'], credentials: true },
+    cors: { origin: '*', methods: ['GET', 'POST']},
 })
 @UseFilters(AllExceptionsFilter)
 export class GameServerGateway

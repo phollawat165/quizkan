@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import nookies from 'nookies';
+import axios from 'axios';
 
 import { firebase as firebaseClient } from '../services/firebase/client';
 
@@ -30,8 +31,9 @@ export function AuthProvider({ children }: any) {
             console.log(`updating token...`);
             const token = await user.getIdToken();
             setUser(user);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             nookies.destroy(null, 'token');
-            nookies.set(null, 'token', token, { path: '/' });
+            nookies.set(null, 'token', token, { path: '/', domain: window.location.hostname });
         });
     }, []);
 
