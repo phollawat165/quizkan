@@ -1,6 +1,16 @@
 import Head from 'next/head';
 import React, { useState, useEffect, useRef } from 'react';
-import { Navbar,Nav, Col, Container, Jumbotron, Row, Form, Card , NavDropdown  } from 'react-bootstrap';
+import {
+    Navbar,
+    Nav,
+    Col,
+    Container,
+    Jumbotron,
+    Row,
+    Form,
+    Card,
+    NavDropdown,
+} from 'react-bootstrap';
 import DefaultLayout from '../../layouts/Default';
 import QuestionFrom from '../../components/HostGame/Form';
 import Image from 'react-bootstrap/Image';
@@ -11,7 +21,13 @@ import styles from '../../components/Navigation/NavBar.module.scss';
 import { useAuth } from 'hooks/auth';
 import { firebase as firebaseClient } from 'services/firebase/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar ,faCircle, faSquare,faHeart ,faCheck} from '@fortawesome/free-solid-svg-icons';
+import {
+    faStar,
+    faCircle,
+    faSquare,
+    faHeart,
+    faCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import style from '../../../components/HostGame/Start.module.scss';
 import PlayerWait from '../../components/PlayerGame/wait';
 import PlayerGame from '../../components/PlayerGame/game';
@@ -21,40 +37,35 @@ import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
-
-
 export const HostGameplay = observer((props) => {
-  const router = useRouter();
-  const PlayerStore = useRootStore().playerStore;
-  const { user } = useAuth();
-  const [page,setPage] = useState(PlayerStore.page);
-  const WebSocketStore = useRootStore().webSocketStore;
-  useEffect(() => {
-    setPage(PlayerStore.page);
-  }, [PlayerStore.page]);
+    const router = useRouter();
+    const PlayerStore = useRootStore().playerStore;
+    const { user } = useAuth();
+    const [page, setPage] = useState(PlayerStore.page);
+    const WebSocketStore = useRootStore().webSocketStore;
+    useEffect(() => {
+        setPage(PlayerStore.page);
+    }, [PlayerStore.page]);
 
-  useEffect(() => {
-    WebSocketStore.socket.on('recieve_start', async(payload) => {
-      if(payload.id){
-        await PlayerStore.UpdateNumberChoice(payload.question);
-        await PlayerStore.UpdatePage(1);
-      }
-    });
-  }, []);
-  
-  return (
-    <DefaultLayout >
-      <Head>
-        <title>Player Game Play</title>
-      </Head>
-      {page==0 && (<PlayerWait/> )}
-      {page==1 && (<PlayerGame/> )}
-      {page==2 && (<PlayerScore/> )}
-    </DefaultLayout>
-    
-  );
+    useEffect(() => {
+        WebSocketStore.socket.on('recieve_start', async (payload) => {
+            if (payload.id) {
+                await PlayerStore.UpdateNumberChoice(payload.question);
+                await PlayerStore.UpdatePage(1);
+            }
+        });
+    }, []);
+
+    return (
+        <DefaultLayout>
+            <Head>
+                <title>Player Game Play</title>
+            </Head>
+            {page == 0 && <PlayerWait />}
+            {page == 1 && <PlayerGame />}
+            {page == 2 && <PlayerScore />}
+        </DefaultLayout>
+    );
 });
-
-
 
 export default HostGameplay;

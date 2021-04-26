@@ -246,10 +246,13 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
                     body: `Welcome ${name} to the game`,
                 });
                 // Send login success
-                client.emit('loginSuccess', {
+                client.emit('message', {
+                    message: 'Login success',
                     user: user.toJSON(),
                     time: dayjs().toISOString(),
                 });
+                // Broadcast players in the server
+                this.broadcastNewPlayer(user);
                 this.logger.log(`User ${user.uid} logged in`);
             }
         }
@@ -368,6 +371,25 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
             'setAnswer',
             this.questions[this.currentQuestion],
         );
+    }
+
+    broadcastNewPlayer(user: UserDocument) {
+        // Broadcast players
+        const players = [];
+        let lastPlayer = null;
+        for (const [, player] of this.playerService.getPlayers().entries()) {
+            const tempPlayer = {
+                uid: player.uid,
+                displayName: player.user.displayName,
+            };
+            if (player.uid === user.uid) lastPlayer = tempPlayer;
+            players.push(tempPlayer);
+        }
+        this.server.sockets.emit('setPlayers', {
+            count: players.length,
+            players: players,
+            lastPlayer,
+        });
     }
 
     isHost(player: Player) {

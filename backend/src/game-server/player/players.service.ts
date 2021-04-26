@@ -58,6 +58,8 @@ export class PlayersService {
             uid: user.uid,
             user,
             socket,
+            scores: {},
+            answers: {},
         };
     }
 }

@@ -8,4 +8,8 @@ export interface Player {
     user: UserDocument;
     /** Client socket instance */
     socket: Socket;
+    /** Answer to the question */
+    answers: Record<number, { choice: number; isCorrect: boolean }>;
+    /** Score record */
+    scores: Record<number, { score: number; time: number }>;
 }

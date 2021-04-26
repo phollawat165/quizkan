@@ -1,4 +1,4 @@
-import {quizAns} from "./quizAns"
+import { quizAns } from './quizAns';
 
 export interface quiz {
     id: number;
@@ -10,7 +10,6 @@ export interface quiz {
     createdAt: string;
     updatedAt: string;
     question: quizAns[];
-  }
-  
-  export default quiz;
-  
+}
+
+export default quiz;

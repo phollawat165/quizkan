@@ -7,4 +7,4 @@ declare let self: ServiceWorkerGlobalScope;
 firebase.initializeApp(firebaseConfig);
 firebase.messaging();
 
-export { };
+export {};

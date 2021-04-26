@@ -2,13 +2,14 @@ import React from 'react';
 import styles from './index.module.scss';
 
 export const Footer = (props) => {
-  return (
-    <footer className={`${styles.footer}`}>
-      <p>
-        Copyright &copy; {new Date().getFullYear()} lλmbda. All right reserved.
-      </p>
-    </footer>
-  );
+    return (
+        <footer className={`${styles.footer}`}>
+            <p>
+                Copyright &copy; {new Date().getFullYear()} lλmbda. All right
+                reserved.
+            </p>
+        </footer>
+    );
 };
 
 export default Footer;
