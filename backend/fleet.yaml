@@ -39,6 +39,8 @@ spec:
             env:
               - name: MODE
                 value: "game"
+              - name: AGONES_ENABLED
+                value: "true"
               - name: FIREBASE_ADMIN_PRIVATE_KEY
                 valueFrom:
                   secretKeyRef:
