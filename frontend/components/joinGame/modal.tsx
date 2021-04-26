@@ -5,6 +5,8 @@ import Link from 'next/link';
 import axios from 'axios';
 import styles from './modal.module.scss';
 import { useAuth } from 'hooks/auth';
+import { useRootStore } from '../../stores/stores';
+import { observer } from 'mobx-react-lite';
 
 const NativeInput = ({ label, value, onChange, onBlur, onFocus }) => (
     <label className="k-form-field">
@@ -18,13 +20,17 @@ const NativeInput = ({ label, value, onChange, onBlur, onFocus }) => (
       />
     </label>
   );
-export const JoinModal = (props) => {
+export const JoinModal = observer((props: any) => {
 
   const router = useRouter();
   const [room, setRoom] = useState(null);
   const [url, setUrl] = useState(null);
   const [name, setName] = useState(null);
+  const [isHost, setIsHost] = useState(false);
   const { user } = useAuth();
+  const postStore = useRootStore().hostStore;
+  const playerStore = useRootStore().playerStore;
+  const webSocketStore = useRootStore().webSocketStore;
   
   useEffect(() => {
     if(user){
@@ -46,12 +52,25 @@ export const JoinModal = (props) => {
       })();
     }
   };
+
+  const handleCorrect = (e) => {
+    const result = e.target.checked;
+    setIsHost(result);
+  };
+
   const handleClick = () => {
     if(url){
-      router.push(`/player/${room}/wait`);
+      webSocketStore.setURL(url);
+      webSocketStore.init();
+      webSocketStore.connect();
+      if(isHost){
+        webSocketStore.setHost(true);
+        router.push(`/host/${room}/gameplay`);
+      }
+      router.push(`/player/${room}/gameplay`);
     }
     else if(room){
-      router.push(`/player/${room}/wait`);
+      router.push(`/player/${room}/gameplay`);
     }
   };
   return (
@@ -107,6 +126,14 @@ export const JoinModal = (props) => {
                         onChange={(e) => setUrl(e.target.value)}
                     />
                 </Form.Group>
+                <Form.Group>
+                  <Form.Control
+                      className="form-control"
+                      type="checkbox"
+                      defaultChecked={isHost}
+                      onChange={(e) => {handleCorrect(e)}}
+                  />
+                </Form.Group>
                 <button type="button" className="btn btn-primary" onClick={handleClick}>
                       Join Room
                 </button>
@@ -118,6 +145,6 @@ export const JoinModal = (props) => {
       </Modal.Body>
     </Modal>
   );
-};
+});
 
 export default JoinModal;

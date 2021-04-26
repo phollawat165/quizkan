@@ -32,6 +32,9 @@ export class WebSocketStore {
   @observable
   opts: any;
 
+  @observable
+  host: boolean;
+
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
     this.socket = null;
@@ -43,10 +46,11 @@ export class WebSocketStore {
       withCredentials: true,
     };
     this.messages = [];
+    this.host = false;
     makeObservable(this);
-    if (typeof window !== 'undefined') {
+    /*if (typeof window !== 'undefined') {
       this.init();
-    }
+    }*/
   }
 
   @action
@@ -64,6 +68,15 @@ export class WebSocketStore {
   @action
   private setConnected(connected: boolean): void {
     this.isConnected = connected;
+  }
+  @action
+  setURL(url): void {
+    this.url = url;
+  }
+
+  @action
+  setHost(host): void {
+    this.host = host;
   }
 
   @action

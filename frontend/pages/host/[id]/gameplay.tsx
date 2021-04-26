@@ -28,9 +28,25 @@ export const HostGameplay = observer((props) => {
   const HostStore = useRootStore().hostStore;
   const { user } = useAuth();
   const [page,setPage] = useState(HostStore.page);
+  const WebSocketStore = useRootStore().webSocketStore;
+
   useEffect(() => {
     setPage(HostStore.page);
   }, [HostStore.page]);
+  
+  useLifecycles(
+    () => {
+      WebSocketStore.connect();
+      // registers
+    },
+    () => {
+      // unregister
+      WebSocketStore.socket.off('recieve_message');
+      // shutdown
+      WebSocketStore.close();
+    }
+  );
+
   
   return (
     <DefaultLayout >
