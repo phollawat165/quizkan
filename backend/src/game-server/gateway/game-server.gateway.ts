@@ -58,6 +58,11 @@ export class GameServerGateway
         return payload;
     }
 
+    @SubscribeMessage('host')
+    handleHost(client: Socket, payload: any) {
+        return this.gameServerService.handleHost(client);
+    }
+
     @SubscribeMessage('start')
     async handleStart(client: Socket, payload: any) {
         const player = this.gameServerService

@@ -12,57 +12,94 @@ import quizAns from '../../models/quiz/quizAns';
 
 import style from './CreateQuiz.module.scss';
 import dayjs from 'dayjs';
+import { useEffectOnce } from 'react-use';
 
-export type QuestionProps = Partial<quizAns>;
+export type QuestionProps = Partial<quizAns> & {
+    onChange: (val: quizAns) => any;
+};
 
 export const QuestionFrom: React.FC<QuestionProps> = (props) => {
     const colors = ['one', 'two', 'three', 'four'];
     const icons = [faStar, faCircle, faSquare, faHeart];
-    const [question, setQuestion] = useState(props.question);
-    const [id, setId] = useState(props.id);
-    const [count, setCount] = useState(props.count);
-    const [choices, setChoices] = useState(props.choices);
+    const [temp, setTemp] = useState({
+        id: props.id,
+        order: props.order,
+        name: props.name,
+        choices: props.choices,
+    });
+
+    const getTemp = () => {
+        return temp;
+    };
+
+    const propsChange = () => {
+        const data = getTemp();
+        props.onChange(data);
+    };
 
     const handleChoice = (e, i) => {
         const result = e.target.value;
-        const choiceArray = choices.slice();
-        choiceArray[i].choice = result;
-        setChoices(choiceArray);
+        const data = getTemp();
+        const choiceArray = data.choices.slice();
+        choiceArray[i].name = result;
+        data.choices = choiceArray;
+        setTemp(data);
+        console.log(data.choices);
+        propsChange();
     };
 
     const handleCorrect = (e, i) => {
         const result = e.target.checked;
-        const choiceArray = choices.slice();
+        const data = getTemp();
+        const choiceArray = data.choices.slice();
         choiceArray[i].isCorrect = result;
-        setChoices(choiceArray);
+        data.choices = choiceArray;
+        setTemp(data);
+        console.log(data.choices);
+        propsChange();
     };
 
     const handleAddChoice = () => {
-        const choiceArray = choices.slice();
-        choiceArray.push({ id: count + 1, choice: null, isCorrect: false });
-        setCount(count + 1);
-        setChoices(choiceArray);
+        const data = getTemp();
+        const choiceArray = data.choices.slice();
+        choiceArray.push({ name: 'question', isCorrect: false, order: 0 });
+        data.choices = choiceArray;
+        setTemp(data);
+        console.log(data.choices);
+        propsChange();
     };
 
     const handleDeleteChoice = (idx) => {
-        const array = choices.slice();
-        array.splice(idx, 1);
-        setChoices(array);
+        const data = getTemp();
+        const choiceArray = data.choices.slice();
+        choiceArray.splice(idx, 1);
+        data.choices = choiceArray;
+        setTemp(data);
+        console.log(data.choices);
+        propsChange();
+    };
+
+    const handleSetQuestion = (e) => {
+        const data = getTemp();
+        data.name = e.target.value;
+        setTemp(data);
+        console.log(data.name);
+        propsChange();
     };
 
     const forms = [];
-    for (let i = 0; i < choices.length; i += 2) {
+    for (let i = 0; i < temp.choices.length; i += 2) {
         forms.push(
             <Row>
-                {i < choices.length && (
-                    <Col key={choices[i].id} md={6}>
+                {i < temp.choices.length && (
+                    <Col key={i} md={6}>
                         <Card className="mb-2">
                             <Form.Group>
                                 <Form.Control
                                     className="form-control"
                                     type="text"
                                     placeholder="Type here"
-                                    defaultValue={choices[i].choice}
+                                    defaultValue={temp.choices[i].name}
                                     onChange={(e) => {
                                         handleChoice(e, i);
                                     }}
@@ -75,7 +112,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                                             className="form-control"
                                             type="checkbox"
                                             defaultChecked={
-                                                choices[i].isCorrect
+                                                temp.choices[i].isCorrect
                                             }
                                             onChange={(e) => {
                                                 handleCorrect(e, i);
@@ -98,15 +135,15 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                         </Card>
                     </Col>
                 )}
-                {i + 1 < choices.length && (
-                    <Col key={choices[i + 1].id} md={6}>
+                {i + 1 < temp.choices.length && (
+                    <Col key={i + 1} md={6}>
                         <Card className="mb-2">
                             <Form.Group>
                                 <Form.Control
                                     className="form-control"
                                     type="text"
                                     placeholder="Type here"
-                                    defaultValue={choices[i + 1].choice}
+                                    defaultValue={temp.choices[i + 1].name}
                                     onChange={(e) => {
                                         handleChoice(e, i + 1);
                                     }}
@@ -119,7 +156,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                                             className="form-control"
                                             type="checkbox"
                                             defaultChecked={
-                                                choices[i + 1].isCorrect
+                                                temp.choices[i + 1].isCorrect
                                             }
                                             onChange={(e) => {
                                                 handleCorrect(e, i + 1);
@@ -153,7 +190,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                     className="form-control"
                     type="text"
                     placeholder="Type Your Question"
-                    defaultValue={question}
+                    defaultValue={temp.name}
                     onChange={(e) => {
                         setQuestion(e.target.value);
                     }}

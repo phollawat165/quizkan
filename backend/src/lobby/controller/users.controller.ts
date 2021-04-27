@@ -18,11 +18,15 @@ import { TokenAuthGuard } from 'src/auth/auth.guard';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { Role } from 'src/auth/role/role.enum';
 import { Roles } from 'src/auth/role/roles.decorator';
+import { FirebaseAuthenticationService } from '@aginix/nestjs-firebase-admin';
 
 @Controller('users')
 @UseGuards(TokenAuthGuard)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(
+        private readonly usersService: UsersService,
+        private firebaseAuthService: FirebaseAuthenticationService,
+    ) {}
 
     @Post()
     async create(@Body() createUserDto: CreateUserDto) {
@@ -48,6 +52,10 @@ export class UsersController {
         if (!tokens.includes(token)) {
             user.devices.push({ name: name, token: token });
         }
+        this.firebaseAuthService.setCustomUserClaims(user.uid, {
+            roles: user.roles,
+            isAdmin: user.roles.includes(Role.Admin),
+        });
         await user.save();
     }
 

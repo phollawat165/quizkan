@@ -28,26 +28,18 @@ import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
-const rankTemp = [
-    { name: 'ben', score: '1' },
-    { name: 'asd', score: '10' },
-    { name: 'qwer', score: '4' },
-    { name: 'mon', score: '2' },
-    { name: 'ack', score: '9' },
-    { name: 'nak', score: '9' },
-    { name: 'zac', score: '0' },
-    { name: 'brr', score: '5' },
-    { name: 'yuo', score: '7' },
-];
 export const HostScore = observer((props) => {
     const router = useRouter();
     const HostStore = useRootStore().hostStore;
     const { user } = useAuth();
-    const roomID = router.query.id;
-    rankTemp.sort(function (a, b) {
-        return parseFloat(b.score) - parseFloat(a.score);
+
+    const temp = HostStore.score;
+
+    temp.sort(function (a, b) {
+        return parseFloat(b.totalScore) - parseFloat(a.totalScore);
     });
-    const [rank, setRank] = useState(rankTemp);
+
+    const [rank, setRank] = useState(temp);
     const colors = ['gold', 'silver', 'grey'];
 
     const handleClick = async () => {
@@ -81,12 +73,12 @@ export const HostScore = observer((props) => {
                                 <h6 className="card-title mb-0">
                                     <Row>
                                         <Col xs={8} md={12}>
-                                            {rank[i].name}
+                                            {rank[i].displayName}
                                         </Col>
                                     </Row>
                                 </h6>
                                 <p className="card-text m-0 text-primary ">
-                                    score : {rank[i].score}
+                                    score : {rank[i].totalScore}
                                 </p>
                             </Card.Body>
                         </Col>

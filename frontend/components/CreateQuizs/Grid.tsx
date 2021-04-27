@@ -5,9 +5,10 @@ import QuizCard from './Card';
 
 export type QuizGridProps = {
     quizs: Partial<quiz>[];
+    onDelete: (idx: number) => any;
 };
 
-export const QuizGrid: React.FC<QuizGridProps> = ({ quizs }) => {
+export const QuizGrid: React.FC<QuizGridProps> = ({ quizs, ...props }) => {
     const rows = [];
     for (let i = 0; i < quizs.length; i += 1) {
         quizs[i].color = i % 4;
@@ -17,12 +18,20 @@ export const QuizGrid: React.FC<QuizGridProps> = ({ quizs }) => {
             <Row key={i}>
                 {i < quizs.length && (
                     <Col md={6}>
-                        <QuizCard key={i} {...quizs[i]} />
+                        <QuizCard
+                            onDelete={props.onDelete}
+                            key={i}
+                            {...quizs[i]}
+                        />
                     </Col>
                 )}
                 {i + 1 < quizs.length && (
                     <Col md={6}>
-                        <QuizCard key={i + 1} {...quizs[i + 1]} />
+                        <QuizCard
+                            onDelete={props.onDelete}
+                            key={i + 1}
+                            {...quizs[i + 1]}
+                        />
                     </Col>
                 )}
             </Row>,

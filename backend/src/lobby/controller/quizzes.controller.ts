@@ -10,8 +10,11 @@ import {
     NotFoundException,
     Request,
     ForbiddenException,
+    Query,
 } from '@nestjs/common';
 import { TokenAuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/role/role.enum';
+import { Roles } from 'src/auth/role/roles.decorator';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { CreateQuizDto } from '../../game/dto/create-quiz.dto';
 import { UpdateQuizDto } from '../../game/dto/uptate-quiz.dto';
@@ -32,7 +35,13 @@ export class QuizzesController {
     }
 
     @Get()
-    async findAll() {
+    async findAll(@Request() request: Express.Request) {
+        return this.quizzesService.findByOwner(request.user as UserDocument);
+    }
+
+    @Get('/all')
+    @Roles(Role.Admin)
+    async findAllAdmin() {
         return this.quizzesService.findAll();
     }
 
@@ -61,6 +70,7 @@ export class QuizzesController {
         // Check permission
         if (quiz.owner != (request.user as UserDocument).id)
             throw new ForbiddenException();
+        (updateQuizDto as any).owner = quiz.owner;
         quiz.set(updateQuizDto);
         return quiz.save();
     }

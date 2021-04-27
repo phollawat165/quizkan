@@ -8,26 +8,34 @@ import { useEffectOnce, useLifecycles } from 'react-use';
 
 export const HostWait: React.FC<any> = observer((props) => {
     const router = useRouter();
-    const HostStore = useRootStore().hostStore;
+    const hostStore = useRootStore().hostStore;
     const [joinCount, setJoinCount] = useState(0);
+    const [last, setLast] = useState(null);
     const WebSocketStore = useRootStore().webSocketStore;
 
     const sendStart = async () => {
         WebSocketStore.socket.emit('start');
-        await HostStore.UpdatePage(1);
+        await hostStore.UpdatePage(1);
     };
+    useEffect(() => {
+        setJoinCount(hostStore.people.count);
+        console.log(hostStore.people);
+    }, [hostStore.people.coint]);
 
     // Render
     return (
         <Container className="mt-4">
             <Row className="justify-content-center text-center mb-4">
-                Room ID : {router.query.id}
+                Room ID :
             </Row>
             <Row className="justify-content-center text-center mb-4">
                 People Join
             </Row>
             <Row className="justify-content-center text-center mb-4">
                 {joinCount}
+            </Row>
+            <Row className="justify-content-center text-center mb-4">
+                {last} has joined.
             </Row>
             <Row className="justify-content-center mb-4">
                 <button

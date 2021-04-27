@@ -8,7 +8,7 @@ export class Device {
     @Prop()
     name: string;
 
-    @Prop({ required: true })
+    @Prop()
     token: string;
 }
 

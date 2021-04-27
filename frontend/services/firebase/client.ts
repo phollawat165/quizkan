@@ -42,16 +42,6 @@ if (!firebase.apps.length && typeof window !== 'undefined') {
                 })
                 .then((currentToken) => {
                     if (currentToken) {
-                        axios
-                            .post(`/users/sync`, {
-                                name: navigator.userAgent,
-                                token: currentToken,
-                            })
-                            .catch((error) => {
-                                console.warn(
-                                    'Failed to set device token. Maybe user are not logged in.',
-                                );
-                            });
                         window.localStorage.setItem(
                             'deviceToken',
                             currentToken,

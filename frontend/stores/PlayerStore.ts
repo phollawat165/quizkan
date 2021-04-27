@@ -30,6 +30,10 @@ export class PlayerStore {
     answerChoices: any;
     @observable
     questionState: boolean;
+    @observable
+    personalScore: any;
+    @observable
+    state: string;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
@@ -42,6 +46,8 @@ export class PlayerStore {
         this.questionChoices = null;
         this.answerChoices = null;
         this.questionState = null;
+        this.personalScore = null;
+        this.state = null;
     }
 
     @action
@@ -68,13 +74,14 @@ export class PlayerStore {
         this.clickAt = this.timer;
     }
 
+    @action
     async setChoice(choice): Promise<void> {
         this.choice = choice;
     }
 
     @action
-    async UpdateScore(): Promise<void> {
-        this.totalScore += this.timer;
+    async setTotalScore(totalScore): Promise<void> {
+        this.totalScore = totalScore;
     }
 
     @action
@@ -85,6 +92,15 @@ export class PlayerStore {
     @action
     async UpdateNumberChoice(nc): Promise<void> {
         this.numberChoices = nc;
+    }
+
+    @action
+    async setPersonalScore(personalScore): Promise<void> {
+        this.personalScore = personalScore;
+    }
+    @action
+    async setState(state): Promise<void> {
+        this.state = state;
     }
 }
 

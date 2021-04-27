@@ -3,10 +3,8 @@ import {
     Logger,
     OnModuleDestroy,
     OnModuleInit,
-    RequestTimeoutException,
 } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import dayjs from 'dayjs';
 import { AuthService } from 'src/auth/auth.service';
 import { GameServerGateway } from './gateway/game-server.gateway';
 import { ModuleRef } from '@nestjs/core';
@@ -25,7 +23,6 @@ import { UserDocument } from 'src/users/entities/user.entity';
 import { messaging } from 'firebase-admin';
 import { Question, QuestionDocument } from 'src/game/entities/question.entity';
 import _ from 'lodash';
-import { Document } from 'mongoose';
 
 @Injectable()
 export class GameServerService implements OnModuleInit, OnModuleDestroy {
@@ -39,7 +36,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         private firebaseAuthService: FirebaseAuthenticationService,
     ) {}
 
-    private TIME_PER_QUESTION = 5;
+    private TIME_PER_QUESTION = 20;
     private logger: Logger = new Logger(GameServerService.name);
     private server: Server;
     private agones: AgonesSDK = null;
@@ -336,6 +333,22 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         }
         const player = this.playerService.getPlayerBySocket(client);
         this.playerService.removePlayer(player);
+        this.broadcastNewPlayer(null);
+    }
+
+    async handleHost(client: Socket) {
+        const player = this.playerService.getPlayerBySocket(client);
+        if (player && this.isHost(player)) {
+            player.socket.emit('setHost', { host: true });
+            return { status: 'OK' };
+        } else {
+            client.emit('message', {
+                disconnected: true,
+                message: 'You are not the host.',
+            });
+            player.socket.disconnect();
+            return { status: 'error', message: 'You are not the host.' };
+        }
     }
 
     async startGame(player: Player) {
@@ -478,6 +491,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         let lastPlayer = null;
         // For each players
         for (const [, player] of this.playerService.getPlayers().entries()) {
+            if (player.isHost) continue;
             // Create player entry
             const tempPlayer = {
                 uid: player.uid,
@@ -486,7 +500,7 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
                 joinedAt: player.joinedAt,
             };
             // Set as last player
-            if (player.uid === user.uid) lastPlayer = tempPlayer;
+            if (user && player.uid === user.uid) lastPlayer = tempPlayer;
             players.push(tempPlayer);
         }
         this.server.sockets.emit('setPlayers', {
@@ -593,6 +607,14 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         }
         // Request Agones to do a shutdown process
         if (requestShutdown && this.agonesEnabled) await this.agones.shutdown();
+        else if (requestShutdown) {
+            this.schedulerRegistry.addTimeout(
+                'shutdown',
+                setTimeout(() => {
+                    process.kill(process.pid, 'SIGTERM');
+                }, 1000),
+            );
+        }
         this.finishedCalled = true;
     }
 

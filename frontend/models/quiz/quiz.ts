@@ -1,15 +1,15 @@
 import { quizAns } from './quizAns';
 
 export interface quiz {
-    id: number;
+    id?: number;
     title: string;
     owner: string;
     isPublished: boolean;
     color: number;
-    count: number;
+    order: number;
     createdAt: string;
     updatedAt: string;
-    question: quizAns[];
+    questions: quizAns[];
 }
 
 export default quiz;

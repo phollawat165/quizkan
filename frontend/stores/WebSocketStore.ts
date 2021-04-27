@@ -75,10 +75,32 @@ export class WebSocketStore {
             this.rootStore.hostStore.setQuestionChoices(payload.choices);
         });
         this.socket.on('setAnswer', (payload) => {
-            // Incoming new question
-            // rootStore.questionStore.setQuestion()
+            // Incoming new question with answer
+
             this.rootStore.playerStore.setAnswerChoices(payload.choices);
-            this.rootStore.hostStore.setQuestionChoices(payload.choices);
+            this.rootStore.hostStore.setAnswerChoices(payload.choices);
+        });
+
+        this.socket.on('setPlayers', (payload) => {
+            // Incoming new Joined player
+
+            this.rootStore.hostStore.setPeople(payload);
+        });
+
+        this.socket.on('setState', (payload) => {
+            // Incoming new state
+            this.rootStore.hostStore.setState(payload.state);
+            this.rootStore.playerStore.setState(payload.state);
+        });
+
+        this.socket.on('setScore', (payload) => {
+            // Incoming new state
+            this.rootStore.hostStore.setScore(payload.scoreboard);
+        });
+
+        this.socket.on('setPersonalScore', (payload) => {
+            // Incoming new state
+            this.rootStore.playerStore.setPersonalScore(payload);
         });
     }
 

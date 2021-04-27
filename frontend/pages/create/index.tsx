@@ -6,171 +6,34 @@ import styles from '../styles/Home.module.scss';
 import DefaultLayout from '../../layouts/Default';
 import QuizGrid from '../../components/CreateQuizs/Grid';
 import QuizPagination from '../../components/CreateQuizs/Pagination';
-
-const tempQuizs = [
-    {
-        id: 0,
-        title: 'asdf',
-        owner: 'asdfghj',
-        isPublished: true,
-        color: 0,
-        number: 4,
-        createdAt: '2/2/2',
-        updatedAt: null,
-        question: [
-            {
-                id: 0,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-            {
-                id: 1,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-            {
-                id: 2,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-        ],
-    },
-    {
-        id: 1,
-        title: 'qwert',
-        owner: 'asdfghj',
-        isPublished: true,
-        color: 0,
-        number: 4,
-        createdAt: '2/2/2',
-        updatedAt: null,
-        question: [
-            {
-                id: 0,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-            {
-                id: 1,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-            {
-                id: 2,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-            {
-                id: 3,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-        ],
-    },
-    {
-        id: 2,
-        title: 'aasad',
-        owner: 'asdfghj',
-        isPublished: true,
-        color: 0,
-        number: 4,
-        createdAt: '2/2/2',
-        updatedAt: null,
-        question: [
-            {
-                id: 0,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-            {
-                id: 1,
-                question: 'asadaasddddd',
-                count: 3,
-                choices: [
-                    { id: 0, choice: 'abc', isCorrect: false },
-                    { id: 1, choice: 'bcd', isCorrect: false },
-                    { id: 2, choice: 'cde', isCorrect: false },
-                    { id: 3, choice: 'def', isCorrect: true },
-                ],
-            },
-        ],
-    },
-    {
-        id: 3,
-        title: 'asdsdsdssfsfd',
-        owner: 'asdfghj',
-        isPublished: true,
-        color: 0,
-        number: 2,
-        createdAt: '2/2/2',
-        updatedAt: null,
-        question: [],
-    },
-    {
-        id: 4,
-        title: 'zxccv',
-        owner: 'asdfghj',
-        isPublished: true,
-        color: 0,
-        number: 4,
-        createdAt: '2/2/2',
-        updatedAt: null,
-        question: [],
-    },
-];
+import axios from 'axios';
+import { useEffectOnce } from 'react-use';
+import { useAuth } from 'hooks/auth';
+import Spinner from 'components/Admin/Spinner';
 
 export const createGame: React.FC<any> = (props) => {
     const router = useRouter();
+
+    const { loading } = useAuth();
+    const [dirty, setDirty] = useState(true);
+
     // Data
-    const [quizs, setQuizs] = useState(tempQuizs || []);
+    const [quizs, setQuizs] = useState([]);
+    useEffect(() => {
+        if (dirty && !loading) {
+            axios
+                .get('/quizzes')
+                .then(({ data }) => {
+                    setQuizs(data);
+                })
+                .catch(({ err }) => {
+                    console.log(err);
+                })
+                .finally(() => {
+                    setDirty(false);
+                });
+        }
+    }, [loading, dirty]);
     // Pagination state
     const [pageLen, setPageLen] = useState(1);
     const page = (Number.parseInt(router.query.page as string) || 1) - 1;
@@ -186,6 +49,17 @@ export const createGame: React.FC<any> = (props) => {
                     shallow: true,
                 },
             );
+    };
+
+    const handleDelete = (idx) => {
+        console.log('Deleting ', idx);
+        const newQuizs = [];
+        for (let i = 0; i < quizs.length; i++) {
+            if (quizs[i].id != idx) {
+                newQuizs.push(quizs[i]);
+            }
+        }
+        setQuizs(newQuizs);
     };
 
     // Update page length
@@ -210,7 +84,9 @@ export const createGame: React.FC<any> = (props) => {
                 </Row>
                 <QuizGrid
                     quizs={quizs.slice(page * perPage, (page + 1) * perPage)}
+                    onDelete={handleDelete}
                 />
+
                 <QuizPagination
                     page={page}
                     pageLength={pageLen}

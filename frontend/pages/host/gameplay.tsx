@@ -69,15 +69,13 @@ export const HostGameplay = observer((props) => {
     const router = useRouter();
     const HostStore = useRootStore().hostStore;
     const { user } = useAuth();
-    const [page, setPage] = useState(HostStore.page);
+    const [page, setPage] = useState(0);
     const WebSocketStore = useRootStore().webSocketStore;
-
-    (async () => {
-        await HostStore.UpdateQuestions(tempQuiz);
-    })();
 
     useEffect(() => {
         setPage(HostStore.page);
+        console.log(page);
+        console.log(HostStore.page);
     }, [HostStore.page]);
 
     return (

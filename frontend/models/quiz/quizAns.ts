@@ -1,8 +1,14 @@
 export interface quizAns {
-    id: number;
+    id?: number;
     question: string;
-    count: number;
-    choices: { id: number; choice: string; isCorrect: boolean }[];
+    order: number;
+    newOrder?: boolean;
+    choices: {
+        id: number;
+        newOrder?: number;
+        name: string;
+        isCorrect: boolean;
+    }[];
 }
 
 export default quizAns;

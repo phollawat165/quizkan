@@ -59,7 +59,13 @@ export const HostGame = observer((props) => {
             setWord('Answer');
         }
     };
-
+    useEffect(() => {
+        if (hostStore.state == 'running') {
+            (async () => {
+                await hostStore.UpdatePage(2);
+            })();
+        }
+    }, [hostStore.state]);
     const forms = [];
     for (let i = 0; i < question.choices.length; i += 2) {
         forms.push(

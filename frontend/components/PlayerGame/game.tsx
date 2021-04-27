@@ -46,6 +46,9 @@ export const PlayerGame = observer((props) => {
     const handleClick = async (idx) => {
         await playerStore.setChoice(idx);
         await playerStore.setClickAt();
+        webSocketStore.socket.emit('answer', {
+            choice: idx,
+        });
         await playerStore.UpdatePage(2);
     };
     const forms = [];

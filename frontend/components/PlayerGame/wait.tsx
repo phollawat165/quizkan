@@ -12,9 +12,13 @@ export const PlayerWait: React.FC<any> = observer((props) => {
     const [start, serStart] = useState(false);
     const playerStore = useRootStore().playerStore;
 
-    const handleClick = async () => {
-        await playerStore.UpdatePage(1);
-    };
+    useEffect(() => {
+        (async () => {
+            if (playerStore.state == 'running') {
+                await playerStore.UpdatePage(1);
+            }
+        })();
+    }, [playerStore.state]);
 
     // Render
     return (
@@ -24,14 +28,6 @@ export const PlayerWait: React.FC<any> = observer((props) => {
             </Row>
             <Row className="justify-content-center text-center mb-4">
                 Wait for Host
-            </Row>
-            <Row className="justify-content-center mb-4">
-                <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={handleClick}>
-                    check
-                </button>
             </Row>
         </Container>
     );

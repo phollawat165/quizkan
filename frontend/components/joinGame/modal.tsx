@@ -73,8 +73,9 @@ export const JoinModal = observer((props: any) => {
             if (isHost) {
                 webSocketStore.setHost(true);
                 router.push(`/host/gameplay`);
+            } else {
+                router.push(`/player/gameplay`);
             }
-            router.push(`/player/gameplay`);
         } else if (room) {
             router.push(`/player/gameplay`);
         }

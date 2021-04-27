@@ -24,6 +24,12 @@ export class HostStore {
     answerChoices: any;
     @observable
     questionState: boolean;
+    @observable
+    people: any;
+    @observable
+    state: string;
+    @observable
+    score: any;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
@@ -33,10 +39,17 @@ export class HostStore {
         this.questionChoices = null;
         this.answerChoices = null;
         this.questionState = null;
+        this.people = [];
+        this.score = [];
     }
     @action
     async UpdatePage(p): Promise<void> {
         this.page = p;
+    }
+
+    @action
+    async setPeople(p): Promise<void> {
+        this.people = p;
     }
 
     @action
@@ -57,6 +70,15 @@ export class HostStore {
     @action
     async setQuestionState(questionState): Promise<void> {
         this.questionState = questionState;
+    }
+
+    @action
+    async setState(state): Promise<void> {
+        this.state = state;
+    }
+    @action
+    async setScore(score): Promise<void> {
+        this.score = score;
     }
 }
 

@@ -5,7 +5,9 @@ export const DefaultLayout = ({ children, ...props }) => {
     return (
         <>
             <NavBar />
-            <main role="main">{children}</main>
+            <main role="main" style={{ backgroundColor: 'white' }}>
+                {children}
+            </main>
             <Footer />
         </>
     );

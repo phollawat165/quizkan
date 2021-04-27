@@ -8,14 +8,17 @@ import { useRootStore } from 'stores/stores';
 const AuthContext = createContext<{
     user: firebaseClient.User | null;
     loading: boolean;
+    claims: any;
 }>({
     user: null,
     loading: true,
+    claims: {},
 });
 
 export function AuthProvider({ children }: any) {
     const [user, setUser] = useState<firebaseClient.User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [claims, setClaims] = useState({});
     const rootStore = useRootStore();
 
     useEffect(() => {
@@ -23,9 +26,6 @@ export function AuthProvider({ children }: any) {
             (window as any).nookies = nookies;
         }
         return firebaseClient.auth().onIdTokenChanged(async (user) => {
-            if (loading) {
-                setLoading(false);
-            }
             console.log(`token changed!`);
             if (!user) {
                 console.log(`no token found...`);
@@ -35,12 +35,17 @@ export function AuthProvider({ children }: any) {
                     path: '/',
                     domain: window.location.hostname,
                 });
+                if (loading) {
+                    setLoading(false);
+                }
                 return;
             }
 
             console.log(`updating token...`);
             const token = await user.getIdToken();
+            const claims = await user.getIdTokenResult();
             setUser(user);
+            setClaims(claims.claims);
             // Update token
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             rootStore.webSocketStore.setToken(token);
@@ -74,6 +79,9 @@ export function AuthProvider({ children }: any) {
                 path: '/',
                 domain: window.location.hostname,
             });
+            if (loading) {
+                setLoading(false);
+            }
         });
     }, []);
 
@@ -88,7 +96,7 @@ export function AuthProvider({ children }: any) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, claims }}>
             {children}
         </AuthContext.Provider>
     );

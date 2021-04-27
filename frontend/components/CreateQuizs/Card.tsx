@@ -12,18 +12,26 @@ import { Card, Col, Row } from 'react-bootstrap';
 import quiz from '../../models/quiz/quiz';
 import style from './CreateQuiz.module.scss';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
-export type QuizCardProps = Partial<quiz>;
+export type QuizCardProps = Partial<quiz> & { onDelete: (idx: number) => any };
 
 export const QuizCard: React.FC<QuizCardProps> = (props) => {
     const router = useRouter();
     const colors = ['one', 'two', 'three', 'four'];
     const icons = [faStar, faCircle, faSquare, faHeart];
+    const handleDelete = (idx) => {
+        axios
+            .delete(`/quizzes/${props.id}`)
+            .then(({ data }) => {
+                props.onDelete(idx);
+            })
+            .catch(({ err }) => {
+                console.log(err);
+            });
+    };
     return (
-        <a
-            href={props.id ? `/jobs/${props.id}` : undefined}
-            className={style['custom-a']}
-            onClick={(e) => e.preventDefault()}>
+        <a className={style['custom-a']} onClick={(e) => e.preventDefault()}>
             <Card className={`mb-3 ${style[colors[props.color]]}`}>
                 <Row noGutters className="h-100">
                     <Col xs={4} md={4} className="d-flex align-items-center">
@@ -64,7 +72,10 @@ export const QuizCard: React.FC<QuizCardProps> = (props) => {
                                     <Col xs={4} md={3}>
                                         <button
                                             type="button"
-                                            className="my-2 btn btn-light">
+                                            className="my-2 btn btn-light"
+                                            onClick={() => {
+                                                handleDelete(props.id);
+                                            }}>
                                             Delete
                                         </button>
                                     </Col>

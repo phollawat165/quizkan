@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import { Button, Form, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import styles from './NavBar.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
-import { faBars, faSearch } from '@fortawesome/free-solid-svg-icons';
+import {
+    faBars,
+    faSearch,
+    faUserCircle,
+} from '@fortawesome/free-solid-svg-icons';
 import { observer } from 'mobx-react-lite';
 import firebase from 'firebase/app';
 import 'firebase/auth';
@@ -23,11 +26,12 @@ const navBarTitleMapping: Record<string, string> = {
     '/create': 'Create',
     '/auth/login': 'Login',
     '/auth/register': 'Register',
+    '/admin': 'Admin',
 };
 
 export const NavBar = observer((props) => {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, claims } = useAuth();
     // Navigation bar title for mobile screen
     const [navBarTitle, setNavBarTitle] = useState(DEFAULT_NAVBAR_TITLE);
     const [modalShow, setModalShow] = useState(false);
@@ -47,7 +51,6 @@ export const NavBar = observer((props) => {
             className={styles.navbar}>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Brand
-                href="/"
                 className={`d-none d-md-block ${styles['navbar-brand']}`}>
                 QuizKan
             </Navbar.Brand>
@@ -80,16 +83,30 @@ export const NavBar = observer((props) => {
                             </Nav.Link>
                         </Link>
                     )}
+                    {user && claims.isAdmin && (
+                        <Link href="/admin">
+                            <Nav.Link
+                                active={router.pathname === '/admin'}
+                                href="/admin">
+                                Admin
+                            </Nav.Link>
+                        </Link>
+                    )}
                 </Nav>
                 <Nav>
                     <NavDropdown
                         title={
-                            user && (
+                            user ? (
                                 <>
-                                    <FontAwesomeIcon icon={faBars} size="lg" />
+                                    <FontAwesomeIcon
+                                        icon={faUserCircle}
+                                        size="lg"
+                                    />
                                     {'  '}
-                                    {user.displayName}
+                                    {user.displayName || 'Guest'}
                                 </>
+                            ) : (
+                                'Guest'
                             )
                         }
                         id="basic-nav-dropdown"

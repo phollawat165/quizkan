@@ -16,92 +16,59 @@ import Image from 'react-bootstrap/Image';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffectOnce } from 'react-use';
 
-const tempQuiz = {
-    id: 0,
-    title: 'asdf',
-    owner: 'asdfghj',
-    isPublished: true,
-    color: 0,
-    count: 4,
-    createdAt: '2/2/2',
-    updatedAt: null,
-    question: [
-        {
-            id: 0,
-            question: 'asadaasddddd',
-            count: 3,
-            choices: [
-                { id: 0, choice: 'abc', isCorrect: false },
-                { id: 1, choice: 'bcd', isCorrect: false },
-                { id: 2, choice: 'cde', isCorrect: false },
-                { id: 3, choice: 'def', isCorrect: true },
-            ],
-        },
-        {
-            id: 1,
-            question: 'asadaasddddd',
-            count: 3,
-            choices: [
-                { id: 0, choice: '123', isCorrect: false },
-                { id: 1, choice: '234', isCorrect: true },
-                { id: 2, choice: '567', isCorrect: false },
-                { id: 3, choice: '987', isCorrect: false },
-            ],
-        },
-        {
-            id: 2,
-            question: 'asadaasddddd',
-            count: 3,
-            choices: [
-                { id: 0, choice: 'ฟหก', isCorrect: true },
-                { id: 1, choice: 'ๆไำ', isCorrect: false },
-                { id: 2, choice: 'อออ', isCorrect: false },
-                { id: 3, choice: '่าี', isCorrect: false },
-            ],
-        },
-        {
-            id: 3,
-            question: 'asadaasddddd',
-            count: 3,
-            choices: [
-                { id: 0, choice: 'ผู้', isCorrect: false },
-                { id: 1, choice: 'ชาย', isCorrect: false },
-                { id: 2, choice: 'หญิง', isCorrect: true },
-                { id: 3, choice: '   ', isCorrect: false },
-            ],
-        },
-    ],
-};
 export const EditQuiz = (props) => {
     const router = useRouter();
-    const quizId = tempQuiz.id;
-    const [title, setTitle] = useState(tempQuiz.title);
-    const [owner, setOwner] = useState(tempQuiz.owner);
-    const [publish, setPublish] = useState(tempQuiz.isPublished);
-    const [question, setQuestion] = useState(tempQuiz.question);
-    const [count, setCount] = useState(tempQuiz.count);
-    const handleDeleteQuestion = (idx) => {
-        const array = question.slice();
-        array.splice(idx, 1);
-        setQuestion(array);
+    const [question, setQuestion] = useState(null);
+    const [temp, setTemp] = useState(null);
+    const [order, setOrder] = useState(null);
+    const [id, setId] = useState(router.query.id);
+    const [count, setCount] = useState(0);
+
+    useEffectOnce(() => {
+        axios
+            .get(`/quizzes/${id}`)
+            .then(({ data }) => {
+                setTemp(data);
+            })
+            .catch((err) => {
+                if (err.response) {
+                    console.error(err.response);
+                } else {
+                    console.error('Something went wrong');
+                }
+            });
+    });
+
+    const getTemp = () => {
+        return temp;
     };
-    const handleAddQuestion = () => {
-        const array = question.slice();
-        array.push({
-            id: count + 1,
-            question: null,
-            count: 0,
-            choices: [{ id: 0, choice: null, isCorrect: false }],
-        });
-        setCount(count + 1);
-        setQuestion(array);
+    useEffect(() => {
+        if (temp != null) {
+            const data = getTemp();
+            console.log(data);
+            setCount(temp.questions.length);
+        }
+    }, [temp]);
+
+    const handleChange = (val, idx) => {
+        const data = getTemp();
+        const array = data.questions.slice();
+        array[idx] = val;
+        data.questions = array;
+        setTemp(data);
+        setCount(array.length);
+        console.log(temp);
+        console.log('from child');
+        handleAddQuestion();
+        handleDeleteQuestion(count - 1);
     };
 
     const rows = [];
-    for (let i = 0; i < question.length; i += 1) {
+    for (let i = 0; i < count; i += 1) {
         rows.push(
-            <Card key={question[i].id} className="mt-4">
+            <Card key={i} className="mt-4">
                 <Card.Title>
                     Question {i + 1}
                     <button
@@ -113,10 +80,49 @@ export const EditQuiz = (props) => {
                         Delete
                     </button>
                 </Card.Title>
-                <QuestionFrom key={question[i].id} {...question[i]} />
+                {temp != null && (
+                    <QuestionFrom
+                        key={i}
+                        onChange={(val) => {
+                            handleChange(val, i);
+                        }}
+                        {...temp.questions[i]}
+                    />
+                )}
             </Card>,
         );
     }
+
+    const handleDeleteQuestion = (idx) => {
+        const data = getTemp();
+        const array = data.questions.slice();
+        array.splice(idx, 1);
+        data.questions = array;
+        setTemp(data);
+        setCount(array.length);
+        console.log(temp);
+    };
+
+    const handleAddQuestion = () => {
+        const data = getTemp();
+        const array = data.questions.slice();
+        array.push({
+            name: 'question name',
+            order: 1,
+            choices: [{ name: 'question', isCorrect: false, order: 0 }],
+        });
+        data.questions = array;
+        setTemp(data);
+        setCount(array.length);
+        console.log(temp);
+    };
+    const handleSave = () => {
+        const payload = getTemp();
+        console.log(payload);
+        axios.patch(`/quizzes/${payload.id}`, payload).then(({ data }) => {
+            router.push(`/create`);
+        });
+    };
 
     return (
         <DefaultLayout>
@@ -124,7 +130,13 @@ export const EditQuiz = (props) => {
                 <title>Edit Quiz </title>
             </Head>
 
-            <Container className="mt-2">{rows}</Container>
+            <Container className="mt-2">
+                {temp === null ? (
+                    'Loading'
+                ) : (
+                    <Container className="mt-2">{rows}</Container>
+                )}
+            </Container>
             <Navbar
                 bg="light"
                 variant="light"
@@ -144,7 +156,8 @@ export const EditQuiz = (props) => {
                     <button
                         type="button"
                         className="btn btn-primary ml-2 "
-                        style={{ width: '100px' }}>
+                        style={{ width: '100px' }}
+                        onClick={handleSave}>
                         Save
                     </button>
                 </Nav.Link>
