@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import _ from 'lodash';
 import { Socket } from 'socket.io';
 import { UserDocument } from 'src/users/entities/user.entity';
 import { Player } from './player.entity';
+
+export interface Scoreboard {
+    player: { uid: string; displayName: string };
+    totalScore: number;
+}
 
 @Injectable()
 export class PlayersService {
@@ -28,8 +34,8 @@ export class PlayersService {
         return this.players.get(uid);
     }
 
-    addPlayerRaw(socket: Socket, user: UserDocument) {
-        this.addPlayer(this.makePlayer(socket, user));
+    addPlayerRaw(socket: Socket, user: UserDocument, isHost): Player {
+        return this.addPlayer(this.makePlayer(socket, user, isHost));
     }
 
     addPlayer(player: Player) {
@@ -37,10 +43,15 @@ export class PlayersService {
         this.sockets.set(player.uid, player.socket);
         this.players.set(player.uid, player);
         this.socketIds.set(player.socket.id, player.uid);
+        return player;
     }
 
-    setPlayer(player: Player) {
-        this.addPlayer(player);
+    setPlayer(player: Player): Player {
+        return this.addPlayer(player);
+    }
+
+    hasPlayer(uid: string) {
+        return this.players.has(uid);
     }
 
     removePlayer(player: Player) {
@@ -53,13 +64,84 @@ export class PlayersService {
         this.removePlayer(this.getPlayerById(uid));
     }
 
-    makePlayer(socket: Socket, user: UserDocument): Player {
+    hasAnswered(player: Player, questionNumber: number) {
+        return questionNumber in player.answers;
+    }
+
+    answer(
+        player: Player,
+        questionNumber: number,
+        choice: number,
+        time: number,
+        score: number,
+        isCorrect: boolean,
+    ): boolean {
+        if (questionNumber in player.answers) return false;
+        player.answers[questionNumber] = {
+            choice,
+            time,
+            score,
+            isCorrect,
+        };
+        return true;
+    }
+
+    forceAnswerIfNot(player: Player, questionNumber: number) {
+        if (questionNumber in player.answers) return;
+        player.answers[questionNumber] = {
+            choice: -1,
+            time: 0,
+            score: 0,
+            isCorrect: false,
+        };
+    }
+
+    forceAnswerAllPlayerIfNot(questionNumber: number) {
+        for (const [, player] of this.players.entries()) {
+            this.forceAnswerIfNot(player, questionNumber);
+        }
+    }
+
+    recalculateTotalScore(player: Player) {
+        let score = 0;
+        // For each question
+        for (const questionNo in player.answers) {
+            const answer = player.answers[questionNo];
+            score += answer.score;
+        }
+        player.totalScore = score;
+    }
+
+    recalculateAllPlayerTotalScore() {
+        for (const [, player] of this.players.entries()) {
+            this.recalculateTotalScore(player);
+        }
+    }
+
+    getScoreboard() {
+        const scoreboard: Scoreboard[] = [];
+        for (const [, player] of this.players.entries()) {
+            if (player.isHost) continue;
+            scoreboard.push({
+                player: {
+                    uid: player.uid,
+                    displayName: player.user.displayName,
+                },
+                totalScore: player.totalScore,
+            });
+        }
+        return _.sortBy(scoreboard, ['totalScore']).reverse();
+    }
+
+    makePlayer(socket: Socket, user: UserDocument, isHost: boolean): Player {
         return {
             uid: user.uid,
             user,
             socket,
-            scores: {},
             answers: {},
+            joinedAt: Date.now(),
+            totalScore: 0,
+            isHost,
         };
     }
 }

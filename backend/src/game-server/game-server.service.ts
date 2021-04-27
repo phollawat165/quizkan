@@ -3,6 +3,7 @@ import {
     Logger,
     OnModuleDestroy,
     OnModuleInit,
+    RequestTimeoutException,
 } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import dayjs from 'dayjs';
@@ -48,8 +49,9 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
     private questions: Question[] = null;
     private currentQuestion = -1;
     private currentQuestionBroadcasted = false;
+    private questionBroadcastedAt = Date.now();
     // Answer
-    // TODO
+    private answeredCount = 0;
     // If shutdown by user
     private finishedCalled = false;
     private agonesEnabled = false;
@@ -63,36 +65,93 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         if (!this.game || this.game.state !== GameState.RUNNING) return;
         // Check state
         if (this.question) {
+            // Timer is running
+            if (!this.currentQuestionBroadcasted) {
+                // Increase number
+                this.currentQuestion++;
+                // Broadcast question to all players
+                this.broadcastQuestion();
+                // Set broadcast time
+                this.questionBroadcastedAt = Date.now();
+                this.logger.log('Asking question no.' + this.currentQuestion);
+                this.currentQuestionBroadcasted = true;
+            }
             // Run timer
             this.broadcastTime();
             this.logger.log('Time left: ' + this.time);
             this.time--;
-            // Timer is running
-            if (!this.currentQuestionBroadcasted) {
-                this.currentQuestion++;
-                // this.server.sockets.emit(
-                //     'setQuestion',
-                //     this.questions[this.currentQuestion],
-                // );
-                this.broadcastQuestion();
-                this.logger.log('Asking question no.' + this.currentQuestion);
-                this.currentQuestionBroadcasted = true;
-            }
             // if times up -> change state
             if (this.time < 0) {
                 this.logger.log('Times up');
+                this.logger.log('Force question no.' + this.currentQuestion);
+                this.playerService.forceAnswerAllPlayerIfNot(
+                    this.currentQuestion,
+                );
                 this.setAskingTimedQuestion(false);
             }
         } else {
             // Time up
             if (this.currentQuestionBroadcasted) {
-                this.logger.log('The answer has been sent to all players');
                 // Broadcast answer
                 this.broadcastAnswer();
-                // TODO: Broadcast score
+                this.logger.log('The answer has been sent to all players');
+                // Calculate score
+                this.playerService.recalculateAllPlayerTotalScore();
+                // Broadcast score
+                this.broadcastScore();
             }
             this.currentQuestionBroadcasted = false;
         }
+    }
+
+    async handleAnswer(player: Player, payload: any) {
+        // Player input
+        const answerIdx = Number(payload.choice);
+        // Error
+        if (this.playerService.hasAnswered(player, this.currentQuestion)) {
+            return {
+                status: 'error',
+                message: 'You have already answered this question.',
+            };
+        }
+        // Current question
+        const question = this.getCurrentQuestion();
+        // Time and status
+        const answeredAt = Date.now();
+        let answered = false;
+        // Check validity
+        // idx is the choice no.
+        for (let idx = 0; idx < question.choices.length; idx++) {
+            // We found the choice
+            if (idx === answerIdx) {
+                // Retrieve information about that choice
+                const choice = question.choices[idx];
+                // Calculate score
+                const score = choice.isCorrect
+                    ? this.calculateScore(answeredAt)
+                    : 0;
+                // Record score
+                this.playerService.answer(
+                    player, // Current player
+                    this.currentQuestion, // Current question (starts at 0)
+                    idx, // Current selected choice (starts at 0)
+                    answeredAt, // Timestamp in ms
+                    score, // calculated score
+                    choice.isCorrect, // is it correct?
+                );
+                answered = true;
+                this.logger.log(
+                    `Player ${player.user.displayName} answered, choice: ${idx}, score: ${score}, isCorrect: ${choice.isCorrect}`,
+                );
+                // Broadcast answered count
+                this.answeredCount++;
+                this.broadcastAnsweredCount();
+            }
+        }
+        // If choice not found
+        if (!answered) return { status: 'error', message: 'Choice not found!' };
+        // Return OK
+        return { status: 'OK', answeredAt, choice: answerIdx };
     }
 
     async handleSkip(player: Player) {
@@ -138,6 +197,8 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
                 }
             }
             this.logger.log('Preparing to ask next question');
+            // Reset answer count
+            this.answeredCount = 0;
             // Broadcast next question in 5 second
             this.setAndShowTimer(5);
             const interval = setInterval(() => {
@@ -236,10 +297,19 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
                 client.disconnect();
             } else {
                 // Store users details on the server
-                this.playerService.addPlayerRaw(client, user);
+                const newPlayer = this.playerService.addPlayerRaw(
+                    client,
+                    user,
+                    this.checkIsHost(user),
+                );
                 const name =
                     (await this.firebaseAuthService.getUser(user.uid))
-                        .displayName || 'player';
+                        .displayName ||
+                    (client.handshake.auth as any).displayName ||
+                    'player';
+                // Sync display name
+                newPlayer.user.displayName = name;
+                await newPlayer.user.save();
                 // Send welcome message
                 this.sendNotification(user, {
                     title: 'QuizKan',
@@ -249,7 +319,8 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
                 client.emit('message', {
                     message: 'Login success',
                     user: user.toJSON(),
-                    time: dayjs().toISOString(),
+                    displayName: name,
+                    time: newPlayer.joinedAt,
                 });
                 // Broadcast players in the server
                 this.broadcastNewPlayer(user);
@@ -331,9 +402,11 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
     endGame(): boolean {
         if (this.ended) return false;
         this.ended = true;
-        // TODO: Broadcast game result
         // Set game state = finished
         this.setGameState(GameState.FINISHED);
+        // Broadcast game result
+        this.logger.log('Final score broadcasted');
+        this.broadcastScore();
         this.logger.log('Game ended');
         return true;
     }
@@ -366,6 +439,12 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         this.server.sockets.emit('setQuestion', question);
     }
 
+    broadcastAnsweredCount() {
+        this.server.sockets.emit('setAnsweredCount', {
+            count: this.answeredCount,
+        });
+    }
+
     broadcastAnswer() {
         this.server.sockets.emit(
             'setAnswer',
@@ -373,15 +452,40 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         );
     }
 
+    broadcastScore() {
+        // Emit scoreboard
+        this.server.sockets.emit('setScore', {
+            scoreboard: this.playerService.getScoreboard(),
+        });
+        // For all players
+        for (const [, player] of this.playerService.getPlayers()) {
+            // Skip if host
+            if (player.isHost) continue;
+            const socket = player.socket;
+            // Send personal score
+            socket.emit('setPersonalScore', {
+                uid: player.uid,
+                displayName: player.user.displayName,
+                totalScore: player.totalScore,
+                answers: player.answers,
+            });
+        }
+    }
+
     broadcastNewPlayer(user: UserDocument) {
         // Broadcast players
         const players = [];
         let lastPlayer = null;
+        // For each players
         for (const [, player] of this.playerService.getPlayers().entries()) {
+            // Create player entry
             const tempPlayer = {
                 uid: player.uid,
                 displayName: player.user.displayName,
+                isHost: this.isHost(player),
+                joinedAt: player.joinedAt,
             };
+            // Set as last player
             if (player.uid === user.uid) lastPlayer = tempPlayer;
             players.push(tempPlayer);
         }
@@ -392,25 +496,32 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         });
     }
 
+    getCurrentQuestion() {
+        return this.questions[this.currentQuestion];
+    }
+
     isHost(player: Player) {
-        const user = player.user;
+        return player.isHost;
+    }
+
+    canAnswer() {
+        return (
+            this.game.state === GameState.RUNNING &&
+            this.time > 0 &&
+            this.question
+        );
+    }
+
+    private checkIsHost(user: UserDocument) {
         const hostUser = this.game.host;
         return user.id == hostUser || user.id == (hostUser as UserDocument).id;
     }
 
-    getGame() {
-        return this.game;
-    }
-
-    setGame(game: GameDocument) {
-        this.game = game;
-    }
-
-    async setGameState(gameState: GameState) {
-        if (this.game === null) return;
-        this.game.state = gameState;
-        await this.game.save();
-        this.broadcastState();
+    private calculateScore(currentTime: number) {
+        const timePerQuestion = this.TIME_PER_QUESTION * 1000;
+        const timesUpAt = this.questionBroadcastedAt + timePerQuestion;
+        const deltaTime = Math.max(0, timesUpAt - currentTime);
+        return Math.ceil((deltaTime / timePerQuestion) * 1000);
     }
 
     async sendNotification(
@@ -483,6 +594,21 @@ export class GameServerService implements OnModuleInit, OnModuleDestroy {
         // Request Agones to do a shutdown process
         if (requestShutdown && this.agonesEnabled) await this.agones.shutdown();
         this.finishedCalled = true;
+    }
+
+    getGame() {
+        return this.game;
+    }
+
+    setGame(game: GameDocument) {
+        this.game = game;
+    }
+
+    async setGameState(gameState: GameState) {
+        if (this.game === null) return;
+        this.game.state = gameState;
+        await this.game.save();
+        this.broadcastState();
     }
 
     getLogger() {

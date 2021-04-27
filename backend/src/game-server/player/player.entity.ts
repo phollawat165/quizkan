@@ -9,7 +9,14 @@ export interface Player {
     /** Client socket instance */
     socket: Socket;
     /** Answer to the question */
-    answers: Record<number, { choice: number; isCorrect: boolean }>;
-    /** Score record */
-    scores: Record<number, { score: number; time: number }>;
+    answers: Record<
+        number,
+        { score: number; time: number; choice: number; isCorrect: boolean }
+    >;
+    /** Scores */
+    totalScore: number;
+    /** Joined at timestamps in milliseconds */
+    joinedAt: number;
+    /** Is host */
+    isHost: boolean;
 }

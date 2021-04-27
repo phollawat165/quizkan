@@ -16,7 +16,7 @@ import { AllExceptionsFilter } from 'src/game/exception.filter';
 import { GameServerService } from '../game-server.service';
 
 @WebSocketGateway({
-    cors: { origin: '*', methods: ['GET', 'POST']},
+    cors: { origin: '*', methods: ['GET', 'POST'] },
 })
 @UseFilters(AllExceptionsFilter)
 export class GameServerGateway
@@ -55,7 +55,7 @@ export class GameServerGateway
 
     @SubscribeMessage('message')
     handleMessage(client: Socket, payload: any): string {
-        return 'Hello world!';
+        return payload;
     }
 
     @SubscribeMessage('start')
@@ -68,8 +68,25 @@ export class GameServerGateway
 
     @SubscribeMessage('answer')
     async handleAnswer(client: Socket, payload: any) {
-        // TODO: Set answer
-        return { status: 'OK' };
+        // Set answer
+        const player = this.gameServerService
+            .getPlayerService()
+            .getPlayerBySocket(client);
+        // Denied if you are the host
+        if (player.isHost) {
+            return {
+                status: 'error',
+                message: "Host can't participate in a game.",
+            };
+        }
+        // If answering is not possible
+        if (!this.gameServerService.canAnswer()) {
+            return {
+                status: 'error',
+                message: "You can't answer at this time.",
+            };
+        }
+        return this.gameServerService.handleAnswer(player, payload);
     }
 
     @SubscribeMessage('skip')
