@@ -1,5 +1,6 @@
 import {
     action,
+    autorun,
     computed,
     makeObservable,
     observable,
@@ -34,6 +35,8 @@ export class PlayerStore {
     personalScore: any;
     @observable
     state: string;
+    @observable
+    isAnswer: boolean;
 
     constructor(rootStore: RootStore) {
         makeObservable(this);
@@ -48,11 +51,20 @@ export class PlayerStore {
         this.questionState = null;
         this.personalScore = null;
         this.state = null;
+        this.isAnswer = false;
+        //
+        autorun(() => {
+            console.log('Current page:', this.page);
+        });
     }
 
     @action
     setTimer(timer): void {
         this.timer = timer;
+    }
+    @action
+    setIsAnswer(ia): void {
+        this.isAnswer = ia;
     }
     @action
     setQuestionChoices(questionChoices): void {

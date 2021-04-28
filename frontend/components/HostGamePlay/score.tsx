@@ -31,6 +31,7 @@ import { useEffectOnce, useLifecycles } from 'react-use';
 export const HostScore = observer((props) => {
     const router = useRouter();
     const HostStore = useRootStore().hostStore;
+    const webSocketStore = useRootStore().webSocketStore;
     const { user } = useAuth();
 
     // const temp = HostStore.score.slice();
@@ -52,7 +53,8 @@ export const HostScore = observer((props) => {
     const colors = ['gold', 'silver', 'grey'];
 
     const handleClick = () => {
-        HostStore.UpdatePage(0);
+        webSocketStore.close();
+        router.push('/');
     };
 
     const rows = [];

@@ -32,35 +32,14 @@ import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
+const colors = ['one', 'two', 'three', 'four'];
+const icons = [faStar, faCircle, faSquare, faHeart];
+
 export const PlayerGame = observer((props) => {
     const router = useRouter();
     const { user } = useAuth();
     const playerStore = useRootStore().playerStore;
-    const colors = ['one', 'two', 'three', 'four'];
-    const icons = [faStar, faCircle, faSquare, faHeart];
-    const [score, setScore] = useState(0);
     const webSocketStore = useRootStore().webSocketStore;
-    const [data, setData] = useState(null);
-    const [count, setCount] = useState(0);
-
-    const getData = () => {
-        return data;
-    };
-    useEffect(() => {
-        if (playerStore.questionChoices != null) {
-            setData(playerStore.questionChoices);
-            console.log(data);
-        }
-    }, [playerStore.questionChoices]);
-
-    useEffect(() => {
-        if (data != null) {
-            const datatemp = getData();
-            console.log('checkTemp');
-            setCount(data.choices.length);
-            console.log(datatemp);
-        }
-    }, [data]);
 
     useEffect(() => {
         if (playerStore.page == 1 && !playerStore.questionState) {
@@ -68,13 +47,17 @@ export const PlayerGame = observer((props) => {
         }
     }, [playerStore.questionState]);
 
+    useEffect(() => {
+        if (playerStore.isAnswer) {
+            playerStore.UpdatePage(2);
+        }
+    }, [playerStore.isAnswer]);
+
     const handleClick = (idx) => {
-        playerStore.setChoice(idx);
-        playerStore.setClickAt();
         webSocketStore.socket.emit('answer', {
             choice: idx,
         });
-        playerStore.UpdatePage(2);
+        playerStore.setIsAnswer(true);
     };
 
     const forms = [];

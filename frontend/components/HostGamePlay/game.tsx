@@ -100,114 +100,123 @@ export const HostGame = observer((props) => {
     ) {
         formsQuestion.push(
             <Row>
-                {data != null && i < data.choices.length && (
-                    <Col key={i} md={6}>
-                        <Card className={`mb-2 ${style[colors[i % 4]]} `}>
-                            <Row noGutters className="h-100">
-                                {/* Content */}
-                                <Col md={1} xs={1}></Col>
-                                <Col
-                                    className={`d-flex align-items-center text-center ${style['text']}`}>
-                                    {data.choices[i].name}
-                                </Col>
-                                {data.choices[i].isCorrect && (
-                                    <Col className="d-flex align-items-center">
-                                        <FontAwesomeIcon
-                                            icon={faCheck}
-                                            size="6x"
-                                            className="mx-auto"
-                                            color="white"
-                                        />{' '}
-                                        {''}
+                {hostStore.questionChoices != null &&
+                    i < hostStore.questionChoices.choices.length && (
+                        <Col key={i} md={6}>
+                            <Card className={`mb-2 ${style[colors[i % 4]]} `}>
+                                <Row noGutters className="h-100">
+                                    {/* Content */}
+                                    <Col md={1} xs={1}></Col>
+                                    <Col
+                                        className={`d-flex align-items-center text-center ${style['text']}`}>
+                                        {
+                                            hostStore.questionChoices.choices[i]
+                                                .name
+                                        }
                                     </Col>
-                                )}
-                            </Row>
-                        </Card>
-                    </Col>
-                )}
-                {data != null && i + 1 < data.choices.length && (
-                    <Col key={i + 1} md={6}>
-                        <Card className={`mb-2 ${style[colors[(i + 1) % 4]]}`}>
-                            <Row noGutters className="h-100">
-                                {/* Content */}
-                                <Col md={1} xs={1}></Col>
-                                <Col
-                                    className={`d-flex align-items-center text-center ${style['text']}`}>
-                                    {data.choices[i + 1].name}{' '}
-                                </Col>
-                                {data.choices[i + 1].isCorrect && (
-                                    <Col className="d-flex align-items-center">
-                                        <FontAwesomeIcon
-                                            icon={faCheck}
-                                            size="6x"
-                                            className="mx-auto"
-                                            color="white"
-                                        />{' '}
-                                        {''}
+                                </Row>
+                            </Card>
+                        </Col>
+                    )}
+                {hostStore.questionChoices != null &&
+                    i + 1 < hostStore.questionChoices.choices.length && (
+                        <Col key={i + 1} md={6}>
+                            <Card
+                                className={`mb-2 ${
+                                    style[colors[(i + 1) % 4]]
+                                }`}>
+                                <Row noGutters className="h-100">
+                                    {/* Content */}
+                                    <Col md={1} xs={1}></Col>
+                                    <Col
+                                        className={`d-flex align-items-center text-center ${style['text']}`}>
+                                        {
+                                            hostStore.questionChoices.choices[
+                                                i + 1
+                                            ].name
+                                        }{' '}
                                     </Col>
-                                )}
-                            </Row>
-                        </Card>
-                    </Col>
-                )}
+                                </Row>
+                            </Card>
+                        </Col>
+                    )}
             </Row>,
         );
     }
 
-    const forms = [];
-    for (let i = 0; data != null && i < data.choices.length; i += 2) {
-        forms.push(
+    const formsAnswer = [];
+    for (
+        let i = 0;
+        hostStore.answerChoices != null &&
+        i < hostStore.answerChoices.choices.length;
+        i += 2
+    ) {
+        formsAnswer.push(
             <Row>
-                {data != null && i < data.choices.length && (
-                    <Col key={i} md={6}>
-                        <Card className={`mb-2 ${style[colors[i % 4]]} `}>
-                            <Row noGutters className="h-100">
-                                {/* Content */}
-                                <Col md={1} xs={1}></Col>
-                                <Col
-                                    className={`d-flex align-items-center text-center ${style['text']}`}>
-                                    {data.choices[i].name}
-                                </Col>
-                                {data.choices[i].isCorrect && (
-                                    <Col className="d-flex align-items-center">
-                                        <FontAwesomeIcon
-                                            icon={faCheck}
-                                            size="6x"
-                                            className="mx-auto"
-                                            color="white"
-                                        />{' '}
-                                        {''}
+                {hostStore.answerChoices != null &&
+                    i < hostStore.answerChoices.choices.length && (
+                        <Col key={i} md={6}>
+                            <Card className={`mb-2 ${style[colors[i % 4]]} `}>
+                                <Row noGutters className="h-100">
+                                    {/* Content */}
+                                    <Col md={1} xs={1}></Col>
+                                    <Col
+                                        className={`d-flex align-items-center text-center ${style['text']}`}>
+                                        {
+                                            hostStore.answerChoices.choices[i]
+                                                .name
+                                        }
                                     </Col>
-                                )}
-                            </Row>
-                        </Card>
-                    </Col>
-                )}
-                {data != null && i + 1 < data.choices.length && (
-                    <Col key={i + 1} md={6}>
-                        <Card className={`mb-2 ${style[colors[(i + 1) % 4]]}`}>
-                            <Row noGutters className="h-100">
-                                {/* Content */}
-                                <Col md={1} xs={1}></Col>
-                                <Col
-                                    className={`d-flex align-items-center text-center ${style['text']}`}>
-                                    {data.choices[i + 1].name}{' '}
-                                </Col>
-                                {data.choices[i + 1].isCorrect && (
-                                    <Col className="d-flex align-items-center">
-                                        <FontAwesomeIcon
-                                            icon={faCheck}
-                                            size="6x"
-                                            className="mx-auto"
-                                            color="white"
-                                        />{' '}
-                                        {''}
+                                    {hostStore.answerChoices.choices[i]
+                                        .isCorrect && (
+                                        <Col className="d-flex align-items-center">
+                                            <FontAwesomeIcon
+                                                icon={faCheck}
+                                                size="6x"
+                                                className="mx-auto"
+                                                color="white"
+                                            />{' '}
+                                            {''}
+                                        </Col>
+                                    )}
+                                </Row>
+                            </Card>
+                        </Col>
+                    )}
+                {hostStore.answerChoices != null &&
+                    i + 1 < hostStore.answerChoices.choices.length && (
+                        <Col key={i + 1} md={6}>
+                            <Card
+                                className={`mb-2 ${
+                                    style[colors[(i + 1) % 4]]
+                                }`}>
+                                <Row noGutters className="h-100">
+                                    {/* Content */}
+                                    <Col md={1} xs={1}></Col>
+                                    <Col
+                                        className={`d-flex align-items-center text-center ${style['text']}`}>
+                                        {
+                                            hostStore.answerChoices.choices[
+                                                i + 1
+                                            ].name
+                                        }{' '}
                                     </Col>
-                                )}
-                            </Row>
-                        </Card>
-                    </Col>
-                )}
+                                    {hostStore.answerChoices.choices[i + 1]
+                                        .isCorrect && (
+                                        <Col className="d-flex align-items-center">
+                                            <FontAwesomeIcon
+                                                icon={faCheck}
+                                                size="6x"
+                                                className="mx-auto"
+                                                color="white"
+                                            />{' '}
+                                            {''}
+                                        </Col>
+                                    )}
+                                </Row>
+                            </Card>
+                        </Col>
+                    )}
             </Row>,
         );
     }
@@ -222,13 +231,26 @@ export const HostGame = observer((props) => {
                     {word}
                 </button>
             </Row>
-            {data === null ? (
+            {hostStore.questionState === null ? (
                 'Loading'
             ) : (
                 <Card className="mt-4">
                     <Card.Title>Question </Card.Title>
-                    <Row className="mb-3 ml-2">{data.name}</Row>
-                    {forms}
+                    {hostStore.questionState && (
+                        <Row className="mb-3 ml-2">
+                            {hostStore.questionChoices !== null
+                                ? hostStore.questionChoices.name
+                                : null}
+                        </Row>
+                    )}
+                    {!hostStore.questionState && (
+                        <Row className="mb-3 ml-2">
+                            {hostStore.answerChoices !== null
+                                ? hostStore.answerChoices.name
+                                : null}
+                        </Row>
+                    )}
+                    {hostStore.questionState ? formsQuestion : formsAnswer}
                 </Card>
             )}
         </Container>
