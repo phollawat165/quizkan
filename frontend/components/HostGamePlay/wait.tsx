@@ -13,14 +13,15 @@ export const HostWait: React.FC<any> = observer((props) => {
     const [last, setLast] = useState(null);
     const WebSocketStore = useRootStore().webSocketStore;
 
-    const sendStart = async () => {
+    const sendStart = () => {
         WebSocketStore.socket.emit('start');
-        await hostStore.UpdatePage(1);
+        hostStore.UpdatePage(1);
     };
     useEffect(() => {
         setJoinCount(hostStore.people.count);
         console.log(hostStore.people);
-    }, [hostStore.people.coint]);
+        setLast(hostStore.people.last);
+    }, [hostStore.people]);
 
     // Render
     return (

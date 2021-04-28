@@ -43,41 +43,41 @@ export class HostStore {
         this.score = [];
     }
     @action
-    async UpdatePage(p): Promise<void> {
+    UpdatePage(p): void {
         this.page = p;
     }
 
     @action
-    async setPeople(p): Promise<void> {
+    setPeople(p): void {
         this.people = p;
     }
 
     @action
-    async UpdateCommand(c): Promise<void> {
+    UpdateCommand(c): void {
         this.command = c;
     }
 
     @action
-    async setQuestionChoices(questionChoices): Promise<void> {
-        this.questionChoices = questionChoices;
+    setQuestionChoices(qc): void {
+        this.questionChoices = qc;
     }
 
     @action
-    async setAnswerChoices(answerChoices): Promise<void> {
-        this.answerChoices = answerChoices;
+    setAnswerChoices(ac): void {
+        this.answerChoices = ac;
     }
 
     @action
-    async setQuestionState(questionState): Promise<void> {
-        this.questionState = questionState;
+    setQuestionState(qs): void {
+        this.questionState = qs;
     }
 
     @action
-    async setState(state): Promise<void> {
-        this.state = state;
+    setState(s): void {
+        this.state = s;
     }
     @action
-    async setScore(score): Promise<void> {
+    setScore(score): void {
         this.score = score;
     }
 }

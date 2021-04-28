@@ -2,7 +2,10 @@ import React, { useState, useEffect, useContext, createContext } from 'react';
 import nookies from 'nookies';
 import axios from 'axios';
 
-import { firebase as firebaseClient } from '../services/firebase/client';
+import {
+    firebase as firebaseClient,
+    syncDeviceToken,
+} from '../services/firebase/client';
 import { useRootStore } from 'stores/stores';
 
 const AuthContext = createContext<{
@@ -63,16 +66,7 @@ export function AuthProvider({ children }: any) {
                 });
             // Update device token
             if (localStorage.getItem('deviceToken')) {
-                axios
-                    .post(`/users/sync`, {
-                        name: navigator.userAgent,
-                        token: localStorage.getItem('deviceToken'),
-                    })
-                    .catch((error) => {
-                        console.warn(
-                            'Failed to set device token. Maybe user are not logged in.',
-                        );
-                    });
+                syncDeviceToken(localStorage.getItem('deviceToken'));
             }
             nookies.destroy(null, 'token');
             nookies.set(null, 'token', token, {

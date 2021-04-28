@@ -70,7 +70,7 @@ export const createGame: React.FC<any> = (props) => {
     return (
         <DefaultLayout>
             <Container>
-                <Row className="mt-4 mb-4">
+                <Row className="py-4">
                     <Col xs={12} md={12}>
                         <button
                             type="button"

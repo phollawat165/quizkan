@@ -13,11 +13,9 @@ export const PlayerWait: React.FC<any> = observer((props) => {
     const playerStore = useRootStore().playerStore;
 
     useEffect(() => {
-        (async () => {
-            if (playerStore.state == 'running') {
-                await playerStore.UpdatePage(1);
-            }
-        })();
+        if (playerStore.state == 'running') {
+            playerStore.UpdatePage(1);
+        }
     }, [playerStore.state]);
 
     // Render

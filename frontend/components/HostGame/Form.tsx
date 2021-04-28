@@ -18,15 +18,22 @@ export type QuestionProps = Partial<quizAns>;
 export const QuestionFrom: React.FC<QuestionProps> = (props) => {
     const colors = ['one', 'two', 'three', 'four'];
     const icons = [faStar, faCircle, faSquare, faHeart];
-    const [question, setQuestion] = useState(props.question);
-    const [count, setCount] = useState(props.count);
-    const [choices, setChoices] = useState(props.choices);
+    const [temp, setTemp] = useState({
+        id: props.id,
+        order: props.order,
+        name: props.name,
+        choices: props.choices,
+    });
+
+    const getTemp = () => {
+        return temp;
+    };
 
     const forms = [];
-    for (let i = 0; i < choices.length; i += 2) {
+    for (let i = 0; i < temp.choices.length; i += 2) {
         forms.push(
             <Row>
-                {i < choices.length && (
+                {i < temp.choices.length && (
                     <Col key={i} md={6}>
                         <Card className={`mb-2 ${style[colors[i % 4]]} `}>
                             <Row noGutters className="h-100">
@@ -34,9 +41,9 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                                 <Col md={1} xs={1}></Col>
                                 <Col
                                     className={`d-flex align-items-center text-center ${style['text']}`}>
-                                    {choices[i].choice}
+                                    {temp.choices[i].name}
                                 </Col>
-                                {choices[i].isCorrect && (
+                                {temp.choices[i].isCorrect && (
                                     <Col className="d-flex align-items-center">
                                         <FontAwesomeIcon
                                             icon={faCheck}
@@ -51,7 +58,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                         </Card>
                     </Col>
                 )}
-                {i + 1 < choices.length && (
+                {i + 1 < temp.choices.length && (
                     <Col key={i + 1} md={6}>
                         <Card className={`mb-2 ${style[colors[(i + 1) % 4]]}`}>
                             <Row noGutters className="h-100">
@@ -59,9 +66,9 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                                 <Col md={1} xs={1}></Col>
                                 <Col
                                     className={`d-flex align-items-center text-center ${style['text']}`}>
-                                    {choices[i + 1].choice}{' '}
+                                    {temp.choices[i + 1].name}{' '}
                                 </Col>
-                                {choices[i + 1].isCorrect && (
+                                {temp.choices[i + 1].isCorrect && (
                                     <Col className="d-flex align-items-center">
                                         <FontAwesomeIcon
                                             icon={faCheck}
@@ -82,7 +89,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
 
     return (
         <Container>
-            <Row className="mb-3 ml-2">{question}</Row>
+            <Row className="mb-3 ml-2">{temp.name}</Row>
 
             {forms}
         </Container>

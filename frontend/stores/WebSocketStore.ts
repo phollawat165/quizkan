@@ -52,6 +52,10 @@ export class WebSocketStore {
      */
     @action
     registerListeners(): void {
+        // Debug
+        this.socket.onAny((eventName, ...args) => {
+            console.log('Event:', eventName, args);
+        });
         // Chat
         this.socket.on('message', (payload) => {
             console.log('Message received:', payload);
@@ -65,20 +69,20 @@ export class WebSocketStore {
             // be ready for the next question
             // this will be called after time 5 seconds timer is completed
             this.rootStore.playerStore.setQuestionState(payload.question);
-            this.rootStore.hostStore.setQuestionChoices(payload.choices);
+            this.rootStore.hostStore.setQuestionState(payload.question);
         });
         // Set question
         this.socket.on('setQuestion', (payload) => {
             // Incoming new question
             // rootStore.questionStore.setQuestion()
-            this.rootStore.playerStore.setQuestionChoices(payload.choices);
-            this.rootStore.hostStore.setQuestionChoices(payload.choices);
+            this.rootStore.playerStore.setQuestionChoices(payload);
+            this.rootStore.hostStore.setQuestionChoices(payload);
         });
         this.socket.on('setAnswer', (payload) => {
             // Incoming new question with answer
 
-            this.rootStore.playerStore.setAnswerChoices(payload.choices);
-            this.rootStore.hostStore.setAnswerChoices(payload.choices);
+            this.rootStore.playerStore.setAnswerChoices(payload);
+            this.rootStore.hostStore.setAnswerChoices(payload);
         });
 
         this.socket.on('setPlayers', (payload) => {

@@ -29,86 +29,123 @@ import style from './Home.module.scss';
 import temp from 'pages/auth/temp';
 import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { useEffectOnce, useLifecycles } from 'react-use';
 
 export const PlayerGame = observer((props) => {
     const router = useRouter();
     const { user } = useAuth();
     const playerStore = useRootStore().playerStore;
-
-    const [question, setQuestion] = useState(playerStore.numberChoices);
-    const roomID = router.query.id;
     const colors = ['one', 'two', 'three', 'four'];
     const icons = [faStar, faCircle, faSquare, faHeart];
-    const [score, setScore] = useState(playerStore.totalScore);
+    const [score, setScore] = useState(0);
     const webSocketStore = useRootStore().webSocketStore;
+    const [data, setData] = useState(null);
+    const [count, setCount] = useState(0);
 
-    const handleClick = async (idx) => {
-        await playerStore.setChoice(idx);
-        await playerStore.setClickAt();
+    const getData = () => {
+        return data;
+    };
+    useEffect(() => {
+        if (playerStore.questionChoices != null) {
+            setData(playerStore.questionChoices);
+            console.log(data);
+        }
+    }, [playerStore.questionChoices]);
+
+    useEffect(() => {
+        if (data != null) {
+            const datatemp = getData();
+            console.log('checkTemp');
+            setCount(data.choices.length);
+            console.log(datatemp);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (playerStore.page == 1 && !playerStore.questionState) {
+            playerStore.UpdatePage(2);
+        }
+    }, [playerStore.questionState]);
+
+    const handleClick = (idx) => {
+        playerStore.setChoice(idx);
+        playerStore.setClickAt();
         webSocketStore.socket.emit('answer', {
             choice: idx,
         });
-        await playerStore.UpdatePage(2);
+        playerStore.UpdatePage(2);
     };
+
     const forms = [];
-    for (let i = 0; i < playerStore.questionChoices.lenght; i += 2) {
+    for (
+        let i = 0;
+        playerStore.questionChoices !== null &&
+        i < playerStore.questionChoices.choices.length;
+        i += 2
+    ) {
         forms.push(
             <Row>
-                {i < question && (
-                    <Col key={i} md={6}>
-                        <Card
-                            className={`mb-2 ${style[colors[i % 4]]} `}
-                            onClick={() => {
-                                handleClick(i);
-                            }}>
-                            <Row noGutters className="h-100">
-                                {/* Content */}
+                {playerStore.questionChoices !== null &&
+                    i < playerStore.questionChoices.choices.length && (
+                        <Col key={i} md={6}>
+                            <Card
+                                className={`mb-2 ${style[colors[i % 4]]} `}
+                                onClick={() => {
+                                    handleClick(i);
+                                }}>
+                                <Row noGutters className="h-100">
+                                    {/* Content */}
 
-                                <Col className="d-flex align-items-center">
-                                    <FontAwesomeIcon
-                                        icon={icons[i % 4]}
-                                        size="6x"
-                                        className="mx-auto"
-                                        color="white"
-                                    />{' '}
-                                    {''}
-                                </Col>
-                            </Row>
-                        </Card>
-                    </Col>
-                )}
-                {i + 1 < question && (
-                    <Col key={i + 1} md={6}>
-                        <Card
-                            className={`mb-2 ${style[colors[(i + 1) % 4]]}`}
-                            onClick={() => {
-                                handleClick(i + 1);
-                            }}>
-                            <Row noGutters className="h-100">
-                                {/* Content */}
+                                    <Col className="d-flex align-items-center">
+                                        <FontAwesomeIcon
+                                            icon={icons[i % 4]}
+                                            size="6x"
+                                            className="mx-auto"
+                                            color="white"
+                                        />{' '}
+                                        {''}
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Col>
+                    )}
+                {playerStore.questionChoices !== null &&
+                    i + 1 < playerStore.questionChoices.choices.length && (
+                        <Col key={i + 1} md={6}>
+                            <Card
+                                className={`mb-2 ${style[colors[(i + 1) % 4]]}`}
+                                onClick={() => {
+                                    handleClick(i + 1);
+                                }}>
+                                <Row noGutters className="h-100">
+                                    {/* Content */}
 
-                                <Col className="d-flex align-items-center">
-                                    <FontAwesomeIcon
-                                        icon={icons[(i + 1) % 4]}
-                                        size="6x"
-                                        className="mx-auto"
-                                        color="white"
-                                    />{' '}
-                                    {''}
-                                </Col>
-                            </Row>
-                        </Card>
-                    </Col>
-                )}
+                                    <Col className="d-flex align-items-center">
+                                        <FontAwesomeIcon
+                                            icon={icons[(i + 1) % 4]}
+                                            size="6x"
+                                            className="mx-auto"
+                                            color="white"
+                                        />{' '}
+                                        {''}
+                                    </Col>
+                                </Row>
+                            </Card>
+                        </Col>
+                    )}
             </Row>,
         );
     }
 
     return (
         <Container className="mt-4">
-            <Row className="mb-3">Your Score : {score}</Row>
-            <Container>{forms}</Container>
+            <Row className="mb-3">Your Score : {playerStore.totalScore}</Row>
+            {playerStore.questionChoices === null ? (
+                'Loading'
+            ) : (
+                <Container className="mt-2">{forms}</Container>
+            )}
         </Container>
     );
 });

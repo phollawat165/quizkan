@@ -33,17 +33,26 @@ export const HostScore = observer((props) => {
     const HostStore = useRootStore().hostStore;
     const { user } = useAuth();
 
-    const temp = HostStore.score;
+    // const temp = HostStore.score.slice();
 
-    temp.sort(function (a, b) {
-        return parseFloat(b.totalScore) - parseFloat(a.totalScore);
-    });
+    // temp.sort(function (a, b) {
+    //     return parseFloat(b.totalScore) - parseFloat(a.totalScore);
+    // });
 
-    const [rank, setRank] = useState(temp);
+    const [rank, setRank] = useState([]);
+    useEffect(() => {
+        const temp = HostStore.score.slice();
+
+        temp.sort(function (a, b) {
+            return parseFloat(b.totalScore) - parseFloat(a.totalScore);
+        });
+        setRank(temp);
+    }, [HostStore.score]);
+
     const colors = ['gold', 'silver', 'grey'];
 
-    const handleClick = async () => {
-        await HostStore.UpdatePage(0);
+    const handleClick = () => {
+        HostStore.UpdatePage(0);
     };
 
     const rows = [];
@@ -73,7 +82,7 @@ export const HostScore = observer((props) => {
                                 <h6 className="card-title mb-0">
                                     <Row>
                                         <Col xs={8} md={12}>
-                                            {rank[i].displayName}
+                                            {rank[i].player.displayName}
                                         </Col>
                                     </Row>
                                 </h6>

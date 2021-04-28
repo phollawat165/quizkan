@@ -41,29 +41,18 @@ export const HostGameplay = observer((props) => {
     const router = useRouter();
     const PlayerStore = useRootStore().playerStore;
     const { user } = useAuth();
-    const [page, setPage] = useState(PlayerStore.page);
-    const WebSocketStore = useRootStore().webSocketStore;
     useEffect(() => {
-        setPage(PlayerStore.page);
+        console.log('Page changed to page', PlayerStore.page);
     }, [PlayerStore.page]);
-
-    useEffect(() => {
-        WebSocketStore.socket.on('recieve_start', async (payload) => {
-            if (payload.id) {
-                await PlayerStore.UpdateNumberChoice(payload.question);
-                await PlayerStore.UpdatePage(1);
-            }
-        });
-    }, []);
 
     return (
         <DefaultLayout>
             <Head>
                 <title>Player Game Play</title>
             </Head>
-            {page == 0 && <PlayerWait />}
-            {page == 1 && <PlayerGame />}
-            {page == 2 && <PlayerScore />}
+            {PlayerStore.page == 0 && <PlayerWait />}
+            {PlayerStore.page == 1 && <PlayerGame />}
+            {PlayerStore.page == 2 && <PlayerScore />}
         </DefaultLayout>
     );
 });

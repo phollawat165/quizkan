@@ -64,7 +64,7 @@ export default function Home() {
     return (
         <DefaultLayout>
             {!loading && (
-                <Container className="mt-4">
+                <Container className="pt-4">
                     {user && rowIsLogin}
                     {!user && rowIsNotLogin}
                 </Container>

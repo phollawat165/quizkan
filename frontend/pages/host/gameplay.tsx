@@ -8,6 +8,8 @@ import HostGame from '../../components/HostGamePlay/game';
 import HostScore from '../../components/HostGamePlay/score';
 import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
+import { Col, Row, Container } from 'react-bootstrap';
+import { toJS } from 'mobx';
 
 const tempQuiz = {
     id: 0,
@@ -78,14 +80,27 @@ export const HostGameplay = observer((props) => {
         console.log(HostStore.page);
     }, [HostStore.page]);
 
+    const showStore = () => {
+        console.log(toJS(HostStore.people));
+        console.log(toJS(HostStore.questionState));
+        console.log(toJS(HostStore.questionChoices));
+    };
     return (
         <DefaultLayout>
             <Head>
                 <title>Host Game Play</title>
             </Head>
-            {page == 0 && <HostWait />}
-            {page == 1 && <HostGame />}
-            {page == 2 && <HostScore />}
+            {HostStore.page == 0 && <HostWait />}
+            {HostStore.page == 1 && <HostGame />}
+            {HostStore.page == 2 && <HostScore />}
+            <Row className="justify-content-center mb-4">
+                <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={showStore}>
+                    show
+                </button>
+            </Row>
         </DefaultLayout>
     );
 });

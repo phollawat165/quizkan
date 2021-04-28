@@ -31,7 +31,7 @@ export const NavBarBottom = (props) => {
                     className="btn btn-primary"
                     style={{ width: '150px' }}
                     onClick={() => {
-                        router.push(`/host/${quizID}/wait`);
+                        router.push(`/host/gameplay`);
                     }}>
                     START
                 </button>

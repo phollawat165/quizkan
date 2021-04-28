@@ -96,7 +96,7 @@ export const EditQuiz = (props) => {
     const rows = [];
     for (let i = 0; i < count; i += 1) {
         rows.push(
-            <Card key={i} className="mt-4">
+            <Card key={i} className="mt-4 p-3">
                 <Card.Title>
                     Question {i + 1}
                     <button
@@ -158,7 +158,7 @@ export const EditQuiz = (props) => {
                 <title>Edit Quiz </title>
             </Head>
 
-            <Container className="mt-2">
+            <Container className="pt-2">
                 {temp === null ? (
                     'Loading'
                 ) : (

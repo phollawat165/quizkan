@@ -1,11 +1,10 @@
 export interface quizAns {
     id?: number;
-    question: string;
+    name: string;
     order: number;
-    newOrder?: boolean;
     choices: {
-        id: number;
-        newOrder?: number;
+        id?: number;
+        order?: number;
         name: string;
         isCorrect: boolean;
     }[];

@@ -14,7 +14,11 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import { useAuth } from 'hooks/auth';
-import { firebase as firebaseClient } from 'services/firebase/client';
+import {
+    firebase as firebaseClient,
+    getDeviceToken,
+    syncDeviceToken,
+} from 'services/firebase/client';
 
 // Default navigation bar title
 const DEFAULT_NAVBAR_TITLE = 'QuizKan';
@@ -139,6 +143,24 @@ export const NavBar = observer((props) => {
                                 Logout
                             </NavDropdown.Item>
                         )}
+                        <NavDropdown.Item
+                            onClick={async () => {
+                                const displayNotification = () => {
+                                    const message = user
+                                        ? 'Notification enabled!'
+                                        : 'Please login to receive game notification';
+                                    new Notification('QuizKan', {
+                                        body: message,
+                                    });
+                                };
+                                const deviceToken = await getDeviceToken();
+                                if (deviceToken) {
+                                    displayNotification();
+                                    if (user) syncDeviceToken(deviceToken);
+                                }
+                            }}>
+                            Enable Notification
+                        </NavDropdown.Item>
                     </NavDropdown>
                 </Nav>
             </Navbar.Collapse>

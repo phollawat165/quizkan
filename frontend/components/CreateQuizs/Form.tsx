@@ -45,7 +45,8 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
         data.choices = choiceArray;
         setTemp(data);
         console.log(data.choices);
-        propsChange();
+        //propsChange();
+        props.onChange(data);
     };
 
     const handleCorrect = (e, i) => {
@@ -56,27 +57,30 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
         data.choices = choiceArray;
         setTemp(data);
         console.log(data.choices);
-        propsChange();
+        //propsChange();
+        props.onChange(data);
     };
 
     const handleAddChoice = () => {
-        const data = getTemp();
+        const data = { ...getTemp() };
         const choiceArray = data.choices.slice();
         choiceArray.push({ name: 'question', isCorrect: false, order: 0 });
         data.choices = choiceArray;
         setTemp(data);
         console.log(data.choices);
-        propsChange();
+        //propsChange();
+        props.onChange(data);
     };
 
     const handleDeleteChoice = (idx) => {
-        const data = getTemp();
+        const data = { ...getTemp() };
         const choiceArray = data.choices.slice();
         choiceArray.splice(idx, 1);
         data.choices = choiceArray;
         setTemp(data);
         console.log(data.choices);
-        propsChange();
+        //propsChange();
+        props.onChange(data);
     };
 
     const handleSetQuestion = (e) => {
@@ -84,7 +88,8 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
         data.name = e.target.value;
         setTemp(data);
         console.log(data.name);
-        propsChange();
+        //propsChange();
+        props.onChange(data);
     };
 
     const forms = [];
@@ -192,7 +197,7 @@ export const QuestionFrom: React.FC<QuestionProps> = (props) => {
                     placeholder="Type Your Question"
                     defaultValue={temp.name}
                     onChange={(e) => {
-                        setQuestion(e.target.value);
+                        handleSetQuestion(e.target.value);
                     }}
                 />
             </Form.Group>

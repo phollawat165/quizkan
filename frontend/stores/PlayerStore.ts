@@ -51,55 +51,55 @@ export class PlayerStore {
     }
 
     @action
-    async setTimer(timer): Promise<void> {
+    setTimer(timer): void {
         this.timer = timer;
     }
     @action
-    async setQuestionChoices(questionChoices): Promise<void> {
+    setQuestionChoices(questionChoices): void {
         this.questionChoices = questionChoices;
     }
 
     @action
-    async setAnswerChoices(answerChoices): Promise<void> {
+    setAnswerChoices(answerChoices): void {
         this.answerChoices = answerChoices;
     }
 
     @action
-    async setQuestionState(questionState): Promise<void> {
+    setQuestionState(questionState): void {
         this.questionState = questionState;
     }
 
     @action
-    async setClickAt(): Promise<void> {
+    setClickAt(): void {
         this.clickAt = this.timer;
     }
 
     @action
-    async setChoice(choice): Promise<void> {
+    setChoice(choice): void {
         this.choice = choice;
     }
 
     @action
-    async setTotalScore(totalScore): Promise<void> {
+    setTotalScore(totalScore): void {
         this.totalScore = totalScore;
     }
 
     @action
-    async UpdatePage(p): Promise<void> {
+    UpdatePage(p): void {
         this.page = p;
     }
 
     @action
-    async UpdateNumberChoice(nc): Promise<void> {
+    UpdateNumberChoice(nc): void {
         this.numberChoices = nc;
     }
 
     @action
-    async setPersonalScore(personalScore): Promise<void> {
+    setPersonalScore(personalScore): void {
         this.personalScore = personalScore;
     }
     @action
-    async setState(state): Promise<void> {
+    setState(state): void {
         this.state = state;
     }
 }

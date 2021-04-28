@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { useRootStore } from '../../stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useEffectOnce, useLifecycles } from 'react-use';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 export const PlayerScore: React.FC<any> = observer((props) => {
     const router = useRouter();
@@ -15,7 +17,12 @@ export const PlayerScore: React.FC<any> = observer((props) => {
     const [correct, setCorrect] = useState(null);
     const [show, setShow] = useState(false);
     const WebSocketStore = useRootStore().webSocketStore;
-    const [bg, setBg] = useState('white');
+    const [bg, setBg] = useState('blue');
+    const colorMap = {
+        blue: 'bg-info',
+        red: 'bg-danger',
+        green: 'bg-success',
+    };
     /*const tempQuiz = () =>{
     return  {
      id: 0,
@@ -31,43 +38,67 @@ export const PlayerScore: React.FC<any> = observer((props) => {
  }*/
     useEffect(() => {
         if (playerStore.questionState) {
-            (async () => {
-                setCorrect(null);
-                await playerStore.UpdatePage(1);
-                setBg('white');
-            })();
+            setCorrect(null);
+            playerStore.UpdatePage(1);
+            setBg('blue');
         }
     }, [playerStore.questionState]);
 
     useEffect(() => {
-        (async () => {
+        if (playerStore.personalScore != null) {
             if (playerStore.personalScore.totalScore > playerStore.totalScore) {
-                await playerStore.setTotalScore(
-                    playerStore.personalScore.totalScore,
+                playerStore.setTotalScore(playerStore.personalScore.totalScore);
+                setCorrect(
+                    <Col>
+                        <Row>
+                            <Col className="d-flex align-items-center">
+                                <FontAwesomeIcon
+                                    icon={faCheck}
+                                    size="6x"
+                                    className="mx-auto"
+                                    color="white"
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>{'Your anwser is correct'}</Col>
+                        </Row>
+                    </Col>,
                 );
-                setCorrect('Your anwser is correct');
                 setBg('green');
             } else {
-                setCorrect('Your anwser is worng');
+                setCorrect(
+                    <Col>
+                        <Row>
+                            <Col className="d-flex align-items-center">
+                                <FontAwesomeIcon
+                                    icon={faTimes}
+                                    size="6x"
+                                    className="mx-auto"
+                                    color="white"
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>{'Your anwser is wrong'}</Col>
+                        </Row>
+                    </Col>,
+                );
                 setBg('red');
             }
-            await playerStore.setTimer(0);
-            await playerStore.setChoice(null);
-        })();
+            playerStore.setTimer(0);
+            playerStore.setChoice(null);
+        }
     }, [playerStore.personalScore]);
 
     // Render
     return (
-        <Container
-            className="mt-4"
-            style={{
-                backgroundColor: bg,
-            }}>
-            <Row className="justify-content-center text-center mb-4">
-                Your Score is {playerStore.totalScore}
+        <Container className={`py-4 ${colorMap[bg] || ''}`}>
+            <Row className="justify-content-center text-center mb-4 text-white">
+                <h1>Your Score is {playerStore.totalScore}</h1>
             </Row>
-            <Row className="justify-content-center text-center mb-4">
-                {correct}
+            <Row className="justify-content-center text-center mb-4 text-white">
+                <h3>{correct}</h3>
             </Row>
         </Container>
     );
