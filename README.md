@@ -272,7 +272,13 @@ gcloud container clusters get-credentials <cluster-name>
 <li>Setup MongoDB Atlas (Get Started with Atlas — MongoDB Atlas) and retrieve the connection string. We will use this to configure the backend MONGODB_URI.</li>
 <li>(Required if you want all functionalities to be up and running) Setup a domain name.</li>
 <li>Clone the repository to somewhere and change the current directory to the repository’s.</li>
-<li>Follow all the instructions for Minikube <strong> but not the following steps</strong>: <br>Expose the deployment, MongoDB related step, Minikube only step.<br> Please adapt the configuration to the production setting if necessary.<br> Please also rebuild the image for the production environment since the api endpoint is not the same as the local environment.</li>
+<li>Follow all the instructions for Minikube <strong> but not the following steps</strong>: 
+	<ul>
+		<li>Expose the deployment, MongoDB related step, Minikube only step.</li>
+		<li> Please adapt the configuration to the production setting if necessary.</li>
+		<li> Please also rebuild the image for the production environment since the api endpoint is not the same as the local environment.</li>
+	</ul>
+</li>
 <li>Create a certificate by running the following command. Make sure to change the domain name to your own.</li>
 
 ```
@@ -303,6 +309,13 @@ kubectl apply -f service-frontend.yaml
 
 </ul>
 <p><strong>Cloud Run dedicated game server</strong></p>
+<ul>
+<li>Make sure to follow the Kubernetes instructions.</li>
+<li>Push the images to Google Container Registry (Required by Google Cloud Run)</li>
+<li>Go to the Google Cloud Run console and create the new service.</li>
+<li>Follow on-screen instructions to set-up the game server. <br>Make sure to set up required environment variables, and set the request timeout to the maximum value (3600 seconds). <br>Increase the memory and vCPU if necessary.</li>
+<li>After the game server is up and running. Copy the url to use for the game session.<br> Please make sure to signal the server to make it run the desired game. You can do this from the admin tools page on the web application.<br> After the game has finished, please shut down the game server and the server will become available for next session.</li>
 
+</ul>
 
 
