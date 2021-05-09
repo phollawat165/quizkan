@@ -118,7 +118,7 @@ docker push <your-registry-tag>
 ```
 
 # Running On Local
-<p>Individually</p>
+<p><strong>Individually</strong></p>
 <ul>
 <li>Create MongoDB database.</li>
 <li>Config both frontend and backend .env in the format of 6.2.1 and 6.2.2.</li>
@@ -177,7 +177,7 @@ yarn dev
 <li>Open http://localhost:3000 to see the web app.</li>
 </ul>
 	
-<p>Minikube cluster<p>
+<p><strong>Minikube cluster</strong><p>
 <ul>
 <li>Build all the required images.</li>
 <li>Update image name in deployment.yaml, fleet.yaml, gameserver.yaml both frontend and backend if you use a different container registry.</li>
@@ -189,5 +189,30 @@ yarn dev
 minikube ssh ‘grep host.minikube.internal /etc/hosts | cut -f1’
 ```
 
-<li>Create MongoDB service by runnin</li>
+<li>Create MongoDB service by running. <br> This will expose the MongoDB on the host machine to the Minikube cluster
+kubectl apply -f mongo/service-local.yaml</li>
+<li>Create a secret by running the following command. <br>Edit flag can be omitted if the necessary configuration is already in place.</li>
+
+```
+# Note: The secret value must be base64 encoded.
+kubectl create --edit -f backend/secret.yaml
+kubectl create --edit -f frontend/secret.yaml
+```
+
+<li>Create a configuration by running</li>
+
+```
+kubectl apply -f backend/config.yaml
+```
+
+<li>Create a deployment</li>
+<li>Expose the deployment.</li>
+<li>(Agones)</li>
+<li>Minikube Tunnel)</li>
 </ul>
+# Running on production
+<p><strong>Kubernetes</strong></p>
+<p><strong>Cloud Run dedicated game server</strong></p>
+
+
+
