@@ -158,7 +158,7 @@ yarn start
 cross-env MODE=game AGONES=false yarn start
 ```
 
-<li>In frontend, build service worker file <br>(<u>Relevant issue: GenerateSW has been called multiple times · Issue #51 · shadowwalker/next-pwa (github.com)<u>)</li>
+<li>In frontend, build service worker file <br>(Relevant issue: GenerateSW has been called multiple times · Issue #51 · shadowwalker/next-pwa (github.com))</li>
 <ul>
 <li>In next.config.js: comment the pwa.enable</li>
 <li>Run yarn dev</li>
@@ -269,7 +269,7 @@ kubectl port-forward <game-server-pod-name> <external-port>:<container-port>
 gcloud container clusters get-credentials <cluster-name>
 ```
 
-<li>Setup MongoDB Atlas (<u>Get Started with Atlas — MongoDB Atlas<u>) and retrieve the connection string. We will use this to configure the backend MONGODB_URI.</li>
+<li>Setup MongoDB Atlas (<u>Get Started with Atlas — MongoDB Atlas</u>) and retrieve the connection string. We will use this to configure the backend MONGODB_URI.</li>
 <li>(Required if you want all functionalities to be up and running) Setup a domain name.</li>
 <li>Clone the repository to somewhere and change the current directory to the repository’s.</li>
 <li>Follow all the instructions for Minikube <strong> but not the following steps</strong>: 
