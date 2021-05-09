@@ -116,3 +116,73 @@ docker build -t quizkan-backend .
 docker tag quizkan-backend <your-registry-tag>
 docker push <your-registry-tag>
 ```
+
+# Running On Local
+
+<p>Create MongoDB database.<p>
+<p>Config both frontend and backend .env in the format of 6.2.1 and 6.2.2.</p>
+<p>Start Firebase Emulator. (Make sure your are in <strong>/backend</strong> folder)</p>
+  
+```
+Terminal for Firebase Authentication
+firebase emulators:start
+```
+	
+<p>(Optional) Start Agones emulator.</p>
+
+```
+# Example for Windows
+./sdk-server.xxx.amd64.exe --local
+```
+
+<p>Make sure to install all dependencies before running the application. (Run yarn)</p>
+<p>Install cross-env globally.</p>
+<p>In backend, run (Make sure your are in /backend folder)</p>
+<p>Terminal for Main Server<p>
+  
+```
+yarn start
+# Use yarn start:dev if you want hot reload functionality
+```
+
+<p>In backend, run game server (Make sure your are in <strong>/backend</strong> folder)</p>
+
+```
+# Set AGONES=true if you want to test Agones functionality
+# Use yarn start:dev if you want hot reload functionality
+# Note: The game state is not persisted after reach reload
+
+cross-env MODE=game AGONES=false yarn start
+```
+
+<p>In frontend, build service worker file (Relevant issue: GenerateSW has been called multiple times · Issue #51 · shadowwalker/next-pwa (github.com))</p>
+<ol>
+<li>In next.config.js: comment the pwa.enable</li>
+<li>Run yarn dev</li>
+<li>Wait until “compiled successfully” appears.</li>
+<li>Stop the current yarn dev process.</li>
+<li>Uncomment pwa.enable</li>
+</ol>
+<p>In frontend, run (Make sure your are in /frontend folder)</p>
+<p>Terminal for Client</p>
+
+```
+yarn dev
+```
+
+<p>Open http://localhost:3000 to see the web app.</p>
+
+<p>Minikube cluster<p>
+<ol>
+<li>Build all the required images.</li>
+<li>Update image name in deployment.yaml, fleet.yaml, gameserver.yaml both frontend and backend if you use a different container registry.</li>
+<li>Make sure MongoDB Server is currently running.</li>
+<li>Make sure you are in the root directory of the project.</li>
+<li>Get minikube cluster ip by running</li>
+
+```
+minikube ssh ‘grep host.minikube.internal /etc/hosts | cut -f1’
+```
+
+<li>Create MongoDB service by runnin</li>
+</ol>
