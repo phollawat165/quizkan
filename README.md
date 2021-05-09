@@ -68,3 +68,51 @@ FIREBASE_AUTH_EMULATOR_HOST=<Your Emulator Host>
 # Note: If emulator host exits then Firebase Admin SDK will use emulator
 
 ```
+
+<p>(Optional) Try to build the frontend (production build) outside of the container. It should be successful without any error.</p>
+
+```
+yarn
+yarn build
+```
+
+<p>Build the frontend image by running (Make sure you are in the <strong>/frontend</strong> folder of the repository):</p>
+
+```
+# Note: API_ENDPOINT should be publicly accessible by both client and NextJS server
+# For local image, you can omit build args to use localhost:800 as the api endpoint
+# Registry tag example (Dockerhub): zuikaru/quizkan-frontend
+
+docker build -t quizkan-frontend --build-arg API_ENDPOINT=<backend-server-api-url> .
+docker tag quizkan-frontend <your-registry-tag>
+docker push <your-registry-tag>
+```
+
+<p>Backend (Make sure you are in /backend folder)<br>
+Change the .env as follows:</p>
+
+```
+# Basic
+HOST=0.0.0.0
+PORT=8000
+
+# Firebase
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n <Your Private Key> \n-----END PRIVATE KEY-----\n"
+FIREBASE_ADMIN_CLIENT_EMAIL=<Your Client Email>
+FIREBASE_ADMIN_PROJECT_ID=<Your Project ID>
+FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+
+# Mongodb
+MONGODB_URI=mongodb://localhost:27017/<Your DB Name>
+
+# Agones
+AGONES_ENABLED=false # true during production
+```
+
+<p>Build and push the backend image.</p>
+
+```
+docker build -t quizkan-backend . 
+docker tag quizkan-backend <your-registry-tag>
+docker push <your-registry-tag>
+```
