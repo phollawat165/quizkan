@@ -262,6 +262,46 @@ kubectl port-forward <game-server-pod-name> <external-port>:<container-port>
 
 # Running on production
 <p><strong>Kubernetes</strong></p>
+<ul>
+<li>Setup kubectl to use the cluster on the cloud. For Google Kubernetes Engine, run the following command. You can also run the following command in the Cloud Shell if you didn’t set up Google Cloud SDK. Make sure to enable the billing account.</li>
+	
+```
+gcloud container clusters get-credentials <cluster-name>
+```
+
+<li>Setup MongoDB Atlas (Get Started with Atlas — MongoDB Atlas) and retrieve the connection string. We will use this to configure the backend MONGODB_URI.</li>
+<li>(Required if you want all functionalities to be up and running) Setup a domain name.</li>
+<li>Clone the repository to somewhere and change the current directory to the repository’s.</li>
+<li>Follow all the instructions for Minikube <strong> but not the following steps</strong>: <br>Expose the deployment, MongoDB related step, Minikube only step.<br> Please adapt the configuration to the production setting if necessary.<br> Please also rebuild the image for the production environment since the api endpoint is not the same as the local environment.</li>
+<li>Create a certificate by running the following command. Make sure to change the domain name to your own.</li>
+
+```
+kubectl apply -f certificate.yaml
+```
+
+
+
+
+<li>(Optional but recommended for Google Cloud) Reserve static ip for the services by running the following commands.</li>
+
+```
+gcloud compute addresses create quizkan-backend --global --ip-version IPV4
+gcloud compute addresses create quizkan-frontend --global --ip-version IPV4
+```
+
+<li>Create the services and ingress controllers by running the following commands.</li>
+
+```
+kubectl apply -f service-backend.yaml
+kubectl apply -f service-frontend.yaml
+```
+
+<li>Wait until the external ip of the services becomes available. We will use this to set up DNS records.</li>
+<li>Modify the DNS record by adding A record which points to the frontend and the backend. </li>
+<li>Wait until the certificate becomes available.</li>
+<li>Open your domain name or the external ip to view the web application.</li>
+
+</ul>
 <p><strong>Cloud Run dedicated game server</strong></p>
 
 
