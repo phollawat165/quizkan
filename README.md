@@ -183,15 +183,28 @@ yarn dev
 <li>Update image name in deployment.yaml, fleet.yaml, gameserver.yaml both frontend and backend if you use a different container registry.</li>
 <li>Make sure MongoDB Server is currently running.</li>
 <li>Make sure you are in the root directory of the project.</li>
-<li>Get minikube cluster ip by running</li>
+<li>Make sure to set up the image pull secret correctly if the images are on a private registry.</li>
+<li>Make sure to have the Minikube cluster set up and running. In addition, please make sure to install the helm package manager as well.</li>
+<li>Install Agones by running</li>
+
+```
+helm repo add agones https://agones.dev/chart/stable
+helm repo update
+helm install agones --namespace agones-system --create-namespace agones/agones
+```
+
+<li>(Minikube only) Get minikube cluster ip by running</li>
 
 ```
 minikube ssh ‘grep host.minikube.internal /etc/hosts | cut -f1’
 ```
+<li>Create MongoDB service by running the following command.<br> This will expose MongoDB on the host machine to the Minikube cluster.<br> Please also replace the ip in the Endpoint object by your ip address from the above command.</li>
 
-<li>Create MongoDB service by running. <br> This will expose the MongoDB on the host machine to the Minikube cluster
-kubectl apply -f mongo/service-local.yaml</li>
-<li>Create a secret by running the following command. <br>Edit flag can be omitted if the necessary configuration is already in place.</li>
+```
+kubectl apply -f mongo/service-local.yaml
+```
+
+<li>Create a secret by running the following command.<br> Edit flag can be omitted if the necessary configuration is already in place. <br>For the backend, there are 2 secrets: firebase private key, mongodb uri. <br>For the frontend there is one secret: Firebase private key.</li>
 
 ```
 # Note: The secret value must be base64 encoded.
@@ -199,16 +212,52 @@ kubectl create --edit -f backend/secret.yaml
 kubectl create --edit -f frontend/secret.yaml
 ```
 
-<li>Create a configuration by running</li>
+<li>Create a configuration by running the following. Edit the configuration file if necessary.</li>
 
 ```
 kubectl apply -f backend/config.yaml
 ```
 
-<li>Create a deployment</li>
-<li>Expose the deployment.</li>
-<li>(Agones)</li>
-<li>(Minikube Tunnel)</li>
+<li><li>Create a deployment by running</li>
+
+```
+kubectl apply -f backend/deployment.yaml
+kubectl apply -f frontend/deployment.yaml
+```
+
+<li>Expose the deployment by running</li>
+
+```
+kubectl expose deployment quizkan-backend-deployment --type=LoadBalancer --port=8000
+kubectl expose deployment quizkan-frontend-deployment --type=LoadBalancer --port=3000
+```
+
+<li>Create role binding and fleet.</li>
+
+```
+kubectl apply -f rolebinding.yaml
+kubectl apply -f fleet.yaml
+```
+
+<li>(Minikube only) Open another terminal and run the following command. <strong>Please make sure to keep it open.</strong></li>
+
+```
+minikube tunnel
+```
+
+<li>Verify that the service is up and running by running the following commands:</li>
+
+```
+kubectl get services
+kubectl get gs
+```
+
+<li>(Minikube only) To access the game server inside the cluster from the host, run the following command in another terminal.</li>
+
+```
+kubectl port-forward <game-server-pod-name> <external-port>:<container-port>
+```
+
 </ul>
 
 # Running on production
