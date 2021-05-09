@@ -1,9 +1,10 @@
 # Prerequisite 
 <strong>Before running our project in any method, the following steps must be done:</strong>
-
-<p>Download our project on: https://github.com/zuikaru/quizkan<br>
-Or clone our project on main branch using: https://github.com/zuikaru/quizkan.git<br><br>
-Sign up or sign in to Google Cloud and Firebase and create a new project, Firebase Spark plan is enough for our project.</p>
+<ol>
+<li>Download our project on: https://github.com/zuikaru/quizkan<br>
+  Or clone our project on main branch using: https://github.com/zuikaru/quizkan.git</li>
+<li>Sign up or sign in to Google Cloud and Firebase and create a new project, Firebase Spark plan is enough for our project.</li>
+</ol>
 
 <strong>Setup the development environment:</strong>
 <ol>
