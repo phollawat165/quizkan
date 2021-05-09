@@ -210,6 +210,7 @@ kubectl apply -f backend/config.yaml
 <li>(Agones)</li>
 <li>Minikube Tunnel)</li>
 </ul>
+
 # Running on production
 <p><strong>Kubernetes</strong></p>
 <p><strong>Cloud Run dedicated game server</strong></p>
