@@ -208,7 +208,7 @@ kubectl apply -f backend/config.yaml
 <li>Create a deployment</li>
 <li>Expose the deployment.</li>
 <li>(Agones)</li>
-<li>Minikube Tunnel)</li>
+<li>(Minikube Tunnel)</li>
 </ul>
 
 # Running on production
